@@ -19,13 +19,13 @@ namespace RateGainData.Console
     {
         public static string DirPath = ConfigurationManager.AppSettings["DownloadDir"];
 
-        static  FileToRedis()
+        static FileToRedis()
         {
             var datePartDir = DateTime.Now.AddDays(-1).Date.ToString("yyyy-MM-dd");
-            DirPath +=  datePartDir;
+            DirPath += datePartDir;
         }
 
-        public  void  ToRedis()
+        public void ToRedis()
         {
             if (Directory.Exists(DirPath))
             {
@@ -44,9 +44,9 @@ namespace RateGainData.Console
         }
 
         [ImportLog]
-        public static  HandleResp  GenerateRedisData(string fullName)
+        public static HandleResp GenerateRedisData(string fullName)
         {
-            var  tempList = new List<RateGainEntity>();
+            var tempList = new List<RateGainEntity>();
 
             try
             {
@@ -82,55 +82,51 @@ namespace RateGainData.Console
                         }
                         if (!tempList.Any())
                         {
-                            return new HandleResp() {Status = 1, EffectiveRecord = 0};
+                            return new HandleResp { Status = 1, EffectiveRecord = 0 };
                         }
 
-                        using (var conn = RedisCacheManager.RateGainData.Connection)
+                        var manager = (new RedisCacheCollection())["Db4"];
+                        var db = manager.GetDataBase();
+                        foreach (var c in tempList)
                         {
-                            var db = conn.GetDatabase(4);
-                            foreach (var c in tempList)
+                            var json = db.StringGet(c.Id);
+                            List<RateGainEntity> oldList = null;
+                            try
                             {
-                                var json = db.StringGet(c.Id);
-                                List<RateGainEntity> oldList = null;
-                                try
+                                if (!string.IsNullOrEmpty(json))
                                 {
-                                    if (!string.IsNullOrEmpty(json))
-                                    {
-                                        oldList = JsonConvert.DeserializeObject<List<RateGainEntity>>(json);
-                                    }
+                                    oldList = JsonConvert.DeserializeObject<List<RateGainEntity>>(json);
                                 }
-                                catch (Exception)
+                            }
+                            catch (Exception)
+                            {
+                                oldList = null;
+                            }
+                            if (oldList != null && oldList.Count > 0)
+                            {
+                                var old =
+                                    oldList.FirstOrDefault(x => x.Channel == c.Channel && x.RoomType == c.RoomType);
+                                //  更新价格
+                                if (old != null)
                                 {
-                                    oldList = null;
-                                }
-                                if (oldList != null && oldList.Count > 0)
-                                {
-                                    var old =
-                                        oldList.FirstOrDefault(x => x.Channel == c.Channel && x.RoomType == c.RoomType);
-                                    //  更新价格
-                                    if (old != null)
-                                    {
-                                        old.Currency = c.Currency;
-                                        old.Rate = c.Rate;
-                                    }
-                                    else
-                                    {
-                                        oldList.Add(c);
-                                    }
-                                    db.StringSet(c.Id, JsonConvert.SerializeObject(oldList));
+                                    old.Currency = c.Currency;
+                                    old.Rate = c.Rate;
                                 }
                                 else
                                 {
-                                    db.StringSet(c.Id, JsonConvert.SerializeObject(new[] {c}));
+                                    oldList.Add(c);
                                 }
-                                // 为该key设置过期时间 [ 该函数必须制定 DateTimeKind 枚举类型，不能使用默认枚举值DateTimeKind.nspecified
-                                var date = c.Id.Split(':')[1];
-                                var expiry = DateTime.SpecifyKind(DateTime.Parse(date).AddDays(1), DateTimeKind.Local);
-                                db.KeyExpire(c.Id, expiry);
+                                db.StringSet(c.Id, JsonConvert.SerializeObject(oldList));
                             }
-                            conn.Close();
+                            else
+                            {
+                                db.StringSet(c.Id, JsonConvert.SerializeObject(new[] { c }));
+                            }
+                            // 为该key设置过期时间 [ 该函数必须制定 DateTimeKind 枚举类型，不能使用默认枚举值DateTimeKind.nspecified
+                            var date = c.Id.Split(':')[1];
+                            var expiry = DateTime.SpecifyKind(DateTime.Parse(date).AddDays(1), DateTimeKind.Local);
+                            db.KeyExpire(c.Id, expiry);
                         }
-
                         return new HandleResp() { Status = 1, EffectiveRecord = tempList.Count };
                     }
                 }
@@ -145,10 +141,10 @@ namespace RateGainData.Console
             }
             catch (Exception ex)
             {
-                return new HandleResp() { Status = 0, EffectiveRecord = tempList.Count,Desc = ex.Message};
+                return new HandleResp() { Status = 0, EffectiveRecord = tempList.Count, Desc = ex.Message };
             }
-            
+
         }
-        
+
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
@@ -9,72 +11,31 @@ namespace RateGain.Util
 {
     public class RedisCacheManager
     {
-        #region static
-        public static RedisCacheManager Website
-        {
-            get { return Managers[0]; }
-        }
+        private static readonly ConfigurationOptions Opt= ConfigurationOptions.Parse(ConfigurationManager.ConnectionStrings["redis"].ConnectionString);
 
-        public static RedisCacheManager Viator
-        {
-            get { return Managers[1]; }
-        }
-
-        public static RedisCacheManager Windsurfer
-        {
-            get { return Managers[2]; }
-        }
-
-        public static RedisCacheManager HeartBeat
-        {
-            get { return Managers[3]; }
-        }
-
-        public static RedisCacheManager RateGainData
-        {
-            get { return Managers[4]; }
-        }
-
-        public static RedisCacheManager Session
-        {
-            get { return Managers[5]; }
-        }
-
-        private static readonly ConfigurationOptions Opt;
-
-        public static List<RedisCacheManager> Managers { get; private set; }
-
-        static RedisCacheManager()
-        {
-            Opt = ConfigurationOptions.Parse(ConfigurationManager.ConnectionStrings["redis"].ConnectionString);
-            Managers = new List<RedisCacheManager>
-            {
-                new RedisCacheManager(0, "Website"),
-                new RedisCacheManager(1, "Viator"),
-                new RedisCacheManager(2, "Windsurfer"),
-                new RedisCacheManager(3, "HeartBeat"),
-                new RedisCacheManager(4, "RateGainData"),
-                new RedisCacheManager(5, "Session")
-            };
-        }
-        #endregion
-
+        // Redis数据库索引
         public int Index { get; private set; }
 
+        // 内部命名的Redis数据库名称
         public string Name { get; private set; }
 
-        private RedisCacheManager(int dbIndex, string name)
+        public RedisCacheManager(int dbIndex, string name)
         {
             Index = dbIndex;
             Name = name;
         }
 
-        public ConnectionMultiplexer Connection
+        public  ConnectionMultiplexer Connection
         {
             get
             {
                 return ConnectionMultiplexer.Connect(Opt);
             }
+        }
+
+        public  IDatabase GetDataBase()
+        {
+            return Connection.GetDatabase(Index);
         }
 
         public string Get(string key)
@@ -85,62 +46,36 @@ namespace RateGain.Util
             }
             try
             {
-                using (var conn = ConnectionMultiplexer.Connect(Opt))
-                {
-                    var db = conn.GetDatabase(Index);
-                    var value = db.StringGet(key);
-                    return value;
-                }
+                var db = this.Connection.GetDatabase(Index);
+                var value = db.StringGet(key);
+                return value;
             }
             catch (Exception ex)
             {
-                LogHelper.Write(ex.Message,LogHelper.LogMessageType.Fatal);
+                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Error);
                 return null;
             }
         }
 
-        public T Get<T>(string key) where T : class
-        {
-            if (string.IsNullOrEmpty(key))
-            {
-                return default(T);
-            }
-            try
-            {
-                var json = Get(key);
-                if (!string.IsNullOrEmpty(json))
-                {
-                    return JsonConvert.DeserializeObject<T>(json);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Fatal);
-                return default(T);
-            }
-            return null;
-        }
-
-        public T[] Get<T>(string[] keys)
+        public T[] Get<T>(IEnumerable<string> keys)
         {
             var list = new List<T>();
-            using (var conn = ConnectionMultiplexer.Connect(Opt))
+
+            var db = this.Connection.GetDatabase(Index);
+            foreach (var key in keys)
             {
-                var db = conn.GetDatabase(Index);
-                foreach (var key in keys)
+                try
                 {
-                    try
-                    {
-                        var value = db.StringGet(key);
-                        var obj = JsonConvert.DeserializeObject<T>(value);
-                        list.Add(obj);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogHelper.Write(ex.Message, LogHelper.LogMessageType.Fatal);
-                    }
+                    var value = db.StringGet(key);
+                    var obj = JsonConvert.DeserializeObject<T>(value);
+                    list.Add(obj);
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Write(ex.Message, LogHelper.LogMessageType.Fatal);
                 }
             }
+
             return list.ToArray();
         }
 
@@ -156,24 +91,35 @@ namespace RateGain.Util
             Insert(key, str, DateTime.MaxValue);
         }
 
+        public void Insert<T>(string key, T item, int minute = 30)
+        {
+            try
+            {
+                var db = this.Connection.GetDatabase(Index);
+                var json = item is string ? item as string : JsonConvert.SerializeObject(item);
+                db.StringSet(key, json, TimeSpan.FromMinutes(minute));
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Error);
+            }
+        }
+
         public void Insert<T>(string key, T item, DateTime expire)
         {
             try
             {
-                using (var conn = ConnectionMultiplexer.Connect(Opt))
-                {
-                    var db = conn.GetDatabase(Index);
-                    var json = item is string ? item as string : JsonConvert.SerializeObject(item);
-                    db.StringSet(key, json);
-                    // 必须指定是Utc时间还是本地时间
-                    expire = DateTime.SpecifyKind(expire, DateTimeKind.Local);
-                    db.KeyExpire(key, expire);
-                    conn.Close();
-                }
+                var db = this.Connection.GetDatabase(Index);
+                var json = item is string ? item as string : JsonConvert.SerializeObject(item);
+                db.StringSet(key, json);
+                // 必须指定是Utc时间还是本地时间
+                expire = DateTime.SpecifyKind(expire, DateTimeKind.Local);
+                db.KeyExpire(key, expire);
+
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // ignore
+                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Error);
             }
         }
 
@@ -181,11 +127,8 @@ namespace RateGain.Util
         {
             try
             {
-                using (var conn = ConnectionMultiplexer.Connect(Opt))
-                {
-                    var db = conn.GetDatabase(Index);
-                    db.KeyDelete(key);
-                }
+                var db = Connection.GetDatabase(Index);
+                db.KeyDelete(key);
             }
             catch (Exception ex)
             {
@@ -205,13 +148,13 @@ namespace RateGain.Util
 
         public void Clear()
         {
-            using (var conn = ConnectionMultiplexer.Connect(Opt))
-            {
-                var endPoint = conn.GetEndPoints()[0];
-                var server = conn.GetServer(endPoint);
-                var keys = server.Keys(Index, "*").ToArray();
-                conn.GetDatabase(Index).KeyDelete(keys);
-            }
+            var conn = Connection;
+            // 获取redis的服务端连接点，这里默认取得第一个
+            var endPoint = conn.GetEndPoints()[0];
+            var server = conn.GetServer(endPoint);
+            var keys = server.Keys(Index, "*").ToArray();
+            conn.GetDatabase(Index).KeyDelete(keys);
+
         }
     }
 }

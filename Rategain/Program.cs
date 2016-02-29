@@ -10,8 +10,9 @@ using CsvHelper;
 using log4net;
 using log4net.Config;
 using log4net.Core;
-using RateGainData.Console.Services;
+using RateGain.Util;
 using StackExchange.Redis;
+using LogHelper = RateGainData.Console.Services.LogHelper;
 
 namespace RateGainData.Console
 {
@@ -21,18 +22,19 @@ namespace RateGainData.Console
         static void Main()
         {
             LogHelper.Init();
-            
-            /*  清除之前非法的keyValue
+
+             // 清除之前非法的keyValue
             try
             {
-                var keys = RedisCacheManager.RateGainData.GetKeys("*");
+                var manage = new RedisCacheCollection()["DB4"];
+                var keys = manage.GetKeys("*");
                 foreach (var key in keys)
                 {
                     var date = key.ToString().Split(':')[1];
                     DateTime outDate;
                     if (DateTime.TryParse(date, out outDate) && DateTime.SpecifyKind(outDate, DateTimeKind.Local) >= DateTime.Now.Date)
                         continue;
-                    RedisCacheManager.RateGainData.DeleteKey(key);
+                    manage.DeleteKey(key);
                 }
             }
             catch (Exception ex)
@@ -40,7 +42,7 @@ namespace RateGainData.Console
                 LogHelper.Write("Redis server do not start.", LogHelper.LogMessageType.Error, ex);
             }
 
-             * */
+            
 
             HotelNameMapping.InitMappinng();
             var ftpDl = new FtpDownload()
