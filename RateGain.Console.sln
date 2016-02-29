@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RateGainData.Console", "Rategain\RateGainData.Console.csproj", "{4B0C8D5C-5A78-41C8-9449-6BC59871DCD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RateGain.Util", "RateGain.Util\RateGain.Util.csproj", "{95B5B0CE-5F42-46F3-90A0-2AD3F066E074}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4B0C8D5C-5A78-41C8-9449-6BC59871DCD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B0C8D5C-5A78-41C8-9449-6BC59871DCD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B0C8D5C-5A78-41C8-9449-6BC59871DCD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B0C8D5C-5A78-41C8-9449-6BC59871DCD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95B5B0CE-5F42-46F3-90A0-2AD3F066E074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95B5B0CE-5F42-46F3-90A0-2AD3F066E074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95B5B0CE-5F42-46F3-90A0-2AD3F066E074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95B5B0CE-5F42-46F3-90A0-2AD3F066E074}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
