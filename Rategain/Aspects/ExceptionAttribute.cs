@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PostSharp.Aspects;
-using RateGainData.Console.Services;
+using RateGain.Util;
 
 namespace RateGainData.Console.Aspects
 {

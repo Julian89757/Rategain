@@ -12,7 +12,6 @@ using log4net.Config;
 using log4net.Core;
 using RateGain.Util;
 using StackExchange.Redis;
-using LogHelper = RateGainData.Console.Services.LogHelper;
 
 namespace RateGainData.Console
 {

@@ -10,7 +10,6 @@ using log4net;
 using Newtonsoft.Json;
 using RateGain.Util;
 using RateGainData.Console.Aspects;
-using RateGainData.Console.Services;
 using StackExchange.Redis;
 
 namespace RateGainData.Console

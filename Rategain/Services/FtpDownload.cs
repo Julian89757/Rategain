@@ -4,12 +4,9 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
 using System.Threading.Tasks;
+using RateGain.Util;
 using RateGainData.Console.Aspects;
-using RateGainData.Console.Services;
 
 // PostSharp use for AOP， Log4net is just for log feature
 namespace RateGainData.Console

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
-using RateGainData.Console.Services;
+using RateGain.Util;
 
 namespace RateGainData.Console.Aspects
 {
