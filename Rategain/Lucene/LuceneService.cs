@@ -77,7 +77,7 @@ namespace RateGainData.Console
             Query query = parser.Parse(searchTerm);
             
             // 找到最可能匹配的三个, 可以直接返回最匹配的一条
-            var hitsFound = searcher.Search(query, null,3);     
+            var hitsFound = searcher.Search(query, null,1);
 
             var results = new List<SampleDataFileRow>();
 
@@ -97,8 +97,6 @@ namespace RateGainData.Console
                 results.Add(tempDataFileRow);
             }
             return new List<SampleDataFileRow> {results.OrderByDescending(x => x.Score).FirstOrDefault() };
-            
-            // return results.OrderByDescending(x => x.Score).ToList();
         }
 
         public void CloseDirectory()
@@ -112,7 +110,7 @@ namespace RateGainData.Console
 /*
  * 根据实际需求 选择合适分词算法解析器
  * 利用分词算法解析器 初始化索引写入器
- * 将源对象以 lucene 文档的形式写入（上一步的索引写入器）索引目录
+ * 用（上一步的索引写入器）将原对象（这里是每行数据）以lucene文档的形式写入索引目录
  * 在索引 （indexSearcher）中查询（QueryParser）指定的Term，注意，使用什么分词算法解析器，就要使用什么解析器作为queryParser 参数
  * 
  * 
