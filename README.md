@@ -1,7 +1,7 @@
 # Rategain.Console
 
 #项目背景:
-      依据第三方网站给出的价格与平台CMS价格做 RateGain比较，需要每日定时使用SFTP下载csv文件， 并将内容导入到redis数据库。
+      依据第三方网站给出的价格与平台CMS价格做 RateGain比较，需要每日定时SFTP下载csv文件， 并将内容导入到redis数据库。
 #功能点：
       日志记录
       SFTP下载
