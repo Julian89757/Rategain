@@ -11,6 +11,20 @@ namespace RateGain.Util
 {
     public class RedisCacheManager
     {
+        private static ConnectionMultiplexer _instance;
+
+        public static ConnectionMultiplexer Connection
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = ConnectionMultiplexer.Connect(Opt);
+                }
+                return _instance;
+            }
+        }
+
         private static readonly ConfigurationOptions Opt= ConfigurationOptions.Parse(ConfigurationManager.ConnectionStrings["redis"].ConnectionString);
 
         // Redis数据库索引
@@ -23,14 +37,6 @@ namespace RateGain.Util
         {
             Index = dbIndex;
             Name = name;
-        }
-
-        public  ConnectionMultiplexer Connection
-        {
-            get
-            {
-                return ConnectionMultiplexer.Connect(Opt);
-            }
         }
 
         public  IDatabase GetDataBase()
@@ -46,7 +52,7 @@ namespace RateGain.Util
             }
             try
             {
-                var db = this.Connection.GetDatabase(Index);
+                var db = Connection.GetDatabase(Index);
                 var value = db.StringGet(key);
                 return value;
             }
@@ -61,7 +67,7 @@ namespace RateGain.Util
         {
             var list = new List<T>();
 
-            var db = this.Connection.GetDatabase(Index);
+            var db = Connection.GetDatabase(Index);
             foreach (var key in keys)
             {
                 try
@@ -95,7 +101,7 @@ namespace RateGain.Util
         {
             try
             {
-                var db = this.Connection.GetDatabase(Index);
+                var db = Connection.GetDatabase(Index);
                 var json = item is string ? item as string : JsonConvert.SerializeObject(item);
                 db.StringSet(key, json, TimeSpan.FromMinutes(minute));
             }
@@ -109,7 +115,7 @@ namespace RateGain.Util
         {
             try
             {
-                var db = this.Connection.GetDatabase(Index);
+                var db = Connection.GetDatabase(Index);
                 var json = item is string ? item as string : JsonConvert.SerializeObject(item);
                 db.StringSet(key, json);
                 // 必须指定是Utc时间还是本地时间
