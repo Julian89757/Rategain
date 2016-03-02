@@ -27,7 +27,7 @@ namespace RateGain.Util
 
         public RedisCacheManager this[int index]
         {
-            get { return Managers[0]; }
+            get { return Managers[index]; }
         }
 
         public RedisCacheManager this[string name]
