@@ -10,11 +10,11 @@ namespace RateGain.Util
 {
     public class RedisCacheCollection
     {
-        private static List<RedisCacheManager> Managers { get;  set; }
+        private  static List<RedisCacheManager> Dbs { get;  set; }
 
         static RedisCacheCollection()
         {
-            Managers = new List<RedisCacheManager>
+            Dbs = new List<RedisCacheManager>
             {
                 new RedisCacheManager(0, "DB0"),
                 new RedisCacheManager(1, "DB1"),
@@ -27,12 +27,12 @@ namespace RateGain.Util
 
         public RedisCacheManager this[int index]
         {
-            get { return Managers[index]; }
+            get { return Dbs[index]; }
         }
 
         public RedisCacheManager this[string name]
         {
-            get { return Managers.FirstOrDefault(x=>  string.Equals(x.Name,name,StringComparison.CurrentCultureIgnoreCase) ); }
+            get { return Dbs.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase)); }
         }
     }
 }

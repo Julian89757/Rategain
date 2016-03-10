@@ -45,6 +45,7 @@ namespace RateGainData.Console
         [ImportLog]
         public static HandleResp GenerateRedisData(string fullName)
         {
+            //  单csv文件数据对象
             var tempList = new List<RateGainEntity>();
 
             try
@@ -83,52 +84,52 @@ namespace RateGainData.Console
                         {
                             return new HandleResp { Status = 1, EffectiveRecord = 0 };
                         }
-
-                        var manager = (new RedisCacheCollection())["Db4"];
-                        var db = manager.GetDataBase();
-                        foreach (var c in tempList)
-                        {
-                            var json = db.StringGet(c.Id);
-                            List<RateGainEntity> oldList = null;
-                            try
-                            {
-                                if (!string.IsNullOrEmpty(json))
-                                {
-                                    oldList = JsonConvert.DeserializeObject<List<RateGainEntity>>(json);
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                oldList = null;
-                            }
-                            if (oldList != null && oldList.Count > 0)
-                            {
-                                var old =
-                                    oldList.FirstOrDefault(x => x.Channel == c.Channel && x.RoomType == c.RoomType);
-                                //  更新价格
-                                if (old != null)
-                                {
-                                    old.Currency = c.Currency;
-                                    old.Rate = c.Rate;
-                                }
-                                else
-                                {
-                                    oldList.Add(c);
-                                }
-                                db.StringSet(c.Id, JsonConvert.SerializeObject(oldList));
-                            }
-                            else
-                            {
-                                db.StringSet(c.Id, JsonConvert.SerializeObject(new[] { c }));
-                            }
-                            // 为该key设置过期时间 [ 该函数必须制定 DateTimeKind 枚举类型，不能使用默认枚举值DateTimeKind.nspecified
-                            var date = c.Id.Split(':')[1];
-                            var expiry = DateTime.SpecifyKind(DateTime.Parse(date).AddDays(1), DateTimeKind.Local);
-                            db.KeyExpire(c.Id, expiry);
-                        }
-                        return new HandleResp() { Status = 1, EffectiveRecord = tempList.Count };
                     }
                 }
+
+                var manager = (new RedisCacheCollection())["Db4"];
+                var db = manager.GetDataBase();
+                foreach (var c in tempList)
+                {
+                    var json = db.StringGet(c.Id);
+                    List<RateGainEntity> oldList = null;
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(json))
+                        {
+                            oldList = JsonConvert.DeserializeObject<List<RateGainEntity>>(json);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        oldList = null;
+                    }
+                    if (oldList != null && oldList.Count > 0)
+                    {
+                        var old =
+                            oldList.FirstOrDefault(x => x.Channel == c.Channel && x.RoomType == c.RoomType);
+                        //  更新价格
+                        if (old != null)
+                        {
+                            old.Currency = c.Currency;
+                            old.Rate = c.Rate;
+                        }
+                        else
+                        {
+                            oldList.Add(c);
+                        }
+                        db.StringSet(c.Id, JsonConvert.SerializeObject(oldList));
+                    }
+                    else
+                    {
+                        db.StringSet(c.Id, JsonConvert.SerializeObject(new[] { c }));
+                    }
+                    // 为该key设置过期时间 [ 该函数必须指定 DateTimeKind 枚举类型，不能使用默认枚举值DateTimeKind.unspecified
+                    var date = c.Id.Split(':')[1];
+                    var expiry = DateTime.SpecifyKind(DateTime.Parse(date).AddDays(1), DateTimeKind.Local);
+                    db.KeyExpire(c.Id, expiry);
+                }
+                return new HandleResp() { Status = 1, EffectiveRecord = tempList.Count };
             }
             catch (IOException ex)
             {

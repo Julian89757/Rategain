@@ -17,11 +17,7 @@ namespace RateGain.Util
         {
             get
             {
-                if (_instance == null)
-                {
-                    _instance = ConnectionMultiplexer.Connect(Opt);
-                }
-                return _instance;
+                return _instance ?? ConnectionMultiplexer.Connect(Opt);
             }
         }
 
@@ -138,7 +134,7 @@ namespace RateGain.Util
             }
             catch (Exception ex)
             {
-                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Fatal);
+                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Error);
             }
         }
 
