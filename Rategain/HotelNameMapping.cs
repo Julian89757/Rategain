@@ -122,7 +122,7 @@ namespace RateGainData.Console
 
         public static void DisposeIndexDirectory()
         {
-            luceneService.disposeIndexDirectory();
+            luceneService.DisposeIndexDirectory();
         }
 
     }
