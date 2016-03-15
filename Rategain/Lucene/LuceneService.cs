@@ -18,7 +18,7 @@ namespace RateGainData.Console
     {
         void BuildIndex(IEnumerable<SampleDataFileRow> dataToIndex);
         SampleDataFileRow Search(string searchTerm);
-        void disposeIndexDirectory();
+        void DisposeIndexDirectory();
     }
 
     public class LuceneService : ILuceneService
@@ -92,7 +92,7 @@ namespace RateGainData.Console
             return tempDataFileRow;
         }
 
-        public void disposeIndexDirectory()
+        public void DisposeIndexDirectory()
         {
             luceneIndexDirectory.Dispose();
         }
