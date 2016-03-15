@@ -13,6 +13,8 @@ namespace RateGainData.Console
 
         private static List<Tuple<string, string, string>> MapResults = new List<Tuple<string, string, string>>();
 
+        public static ILuceneService luceneService = null;
+
         static HotelNameMapping()
         {
             try
@@ -51,21 +53,21 @@ namespace RateGainData.Console
         /// <returns></returns>
         public static void InitMappinng()
         {
-            var luceneService = new LuceneService();
+            luceneService = new LuceneService();
             luceneService.BuildIndex(CmsHotelNames);
 
             foreach (var c in RategainHotelNames)
             {
-                var temp = luceneService.Search(c).FirstOrDefault();
+                var temp = luceneService.Search(c);
                 if (temp != null)
                 {
-                    var hotelName = temp.LineText.Split(':')[0].Trim();
-                    var hotelCode = temp.LineText.Split(':')[1].Trim();
-                    var mapp = Tuple.Create<string, string, string>(c, hotelName, hotelCode);
+                    var hotelName = temp.LineText.Split(':')[0].Trim(' ').Trim('"');
+                    var hotelCode = temp.LineText.Split(':')[1].Trim(' ').Trim('"');
+                    var mapp = Tuple.Create(c, hotelName, hotelCode);
                     MapResults.Add(mapp);
                 }
             }
-            luceneService.CloseDirectory();
+            
             LogHelper.Write("hotel name map completed",LogHelper.LogMessageType.Info);
         }
 
@@ -98,10 +100,29 @@ namespace RateGainData.Console
 
         public string LuceneMap(string propertyName)
         {
+            // 使用kwewin 给的文件匹配
             var temp = MapResults.FirstOrDefault(x => x.Item1 == propertyName);
             if (temp == null)
-                return null;
+            {
+                // 酒店名根本不在 kerwin 给的那个文件列表中， 再给一次机会
+                var mostPossible = luceneService.Search(propertyName);
+                if (mostPossible != null)
+                {
+                    var hotelName = mostPossible.LineText.Split(':')[0].Trim(' ').Trim('"');
+                    var hotelCode = mostPossible.LineText.Split(':')[1].Trim(' ').Trim('"');
+                    MapResults.Add(new Tuple<string, string, string>(propertyName, hotelName, hotelCode));
+
+                    return hotelCode;
+                }
+                return propertyName;
+            }
+
             return temp.Item3;
+        }
+
+        public static void DisposeIndexDirectory()
+        {
+            luceneService.disposeIndexDirectory();
         }
 
     }

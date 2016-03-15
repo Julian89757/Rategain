@@ -37,7 +37,7 @@ namespace RateGainData.Console
 
         public string Channel { get; set; }
 
-        public string Rate { get; set; }
+        public float Rate { get; set; }
 
         public string Currency { get; set; }
 

@@ -41,15 +41,15 @@ namespace RateGainData.Console
                 LogHelper.Write("Redis server do not start.", LogHelper.LogMessageType.Error, ex);
             }
 
-            
-
             HotelNameMapping.InitMappinng();
-            var ftpDl = new FtpDownload()
+
+            var ftpDownLoad = new FtpDownload()
             {
                 ExecFunc = FileToRedis.GenerateRedisData
             };
-            ftpDl.DownLoadList();
+            ftpDownLoad.DownLoadList();
 
+            HotelNameMapping.DisposeIndexDirectory();
         }
     }
 }

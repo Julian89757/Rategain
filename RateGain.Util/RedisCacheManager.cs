@@ -138,6 +138,11 @@ namespace RateGain.Util
             }
         }
 
+        /// <summary>
+        /// 根据正则表达式得到指定的keys
+        /// </summary>
+        /// <param name="pattern">请注意查看 https://redis.readthedocs.org/en/2.6/key/keys.html 具体的正则要求 </param>
+        /// <returns></returns>
         public List<RedisKey> GetKeys(string pattern = null)
         {
             using (var conn = ConnectionMultiplexer.Connect(Opt))

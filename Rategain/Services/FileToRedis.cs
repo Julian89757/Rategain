@@ -67,7 +67,7 @@ namespace RateGainData.Console
                                 {
                                     continue;
                                 }
-                                if (outDate < DateTime.Now.Date || record.Availablity != "O" || record.Rate == "0" ||
+                                if (outDate < DateTime.Now.Date || record.Availablity != "O" || record.Rate == 0 ||
                                     record.Promotion == null || record.Restriction == "Y" ||
                                     record.CrsHotelId == null || record.Channel == null || record.RoomType == "")
                                 {
@@ -77,7 +77,7 @@ namespace RateGainData.Console
                             }
                             catch (KeyNotFoundException)
                             {
-                                System.Console.Write("RateGainEntity Id invalid ");
+                                
                             }
                         }
                         if (!tempList.Any())
@@ -87,53 +87,20 @@ namespace RateGainData.Console
                     }
                 }
 
-                var manager = (new RedisCacheCollection())["Db4"];
-                var db = manager.GetDataBase();
-                foreach (var c in tempList)
-                {
-                    var json = db.StringGet(c.Id);
-                    List<RateGainEntity> oldList = null;
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(json))
-                        {
-                            oldList = JsonConvert.DeserializeObject<List<RateGainEntity>>(json);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        oldList = null;
-                    }
-                    if (oldList != null && oldList.Count > 0)
-                    {
-                        var old =
-                            oldList.FirstOrDefault(x => x.Channel == c.Channel && x.RoomType == c.RoomType);
-                        //  更新价格
-                        if (old != null)
-                        {
-                            old.Currency = c.Currency;
-                            old.Rate = c.Rate;
-                        }
-                        else
-                        {
-                            oldList.Add(c);
-                        }
-                        db.StringSet(c.Id, JsonConvert.SerializeObject(oldList));
-                    }
-                    else
-                    {
-                        db.StringSet(c.Id, JsonConvert.SerializeObject(new[] { c }));
-                    }
-                    // 为该key设置过期时间 [ 该函数必须指定 DateTimeKind 枚举类型，不能使用默认枚举值DateTimeKind.unspecified
-                    var date = c.Id.Split(':')[1];
-                    var expiry = DateTime.SpecifyKind(DateTime.Parse(date).AddDays(1), DateTimeKind.Local);
-                    db.KeyExpire(c.Id, expiry);
-                }
+                RemovePreData(tempList, fullName);
+
+                ImportRedisData(tempList);
+
                 return new HandleResp() { Status = 1, EffectiveRecord = tempList.Count };
             }
             catch (IOException ex)
             {
-                return new HandleResp() { Status = 0, EffectiveRecord = tempList.Count, Desc = "IO exception，Current file is already in used" };
+                return new HandleResp()
+                {
+                    Status = 0,
+                    EffectiveRecord = tempList.Count,
+                    Desc = ex.Message
+                };
             }
             catch (RedisConnectionException ex)
             {
@@ -143,7 +110,81 @@ namespace RateGainData.Console
             {
                 return new HandleResp() { Status = 0, EffectiveRecord = tempList.Count, Desc = ex.Message };
             }
+        }
 
+        // 清除这一批次下 该酒店之前的所有数据
+        private static void RemovePreData(List<RateGainEntity> temp, string fullname)
+        {
+            var manager = (new RedisCacheCollection())["Db4"];
+            var db = manager.GetDataBase();
+            // 一般情况下，一个文件内只有一个酒店
+            var hotels = temp.Select(x => x.CrsHotelId).Distinct();
+            foreach (var h in hotels)
+            {
+                /***********************第一个文件之前删除*********/
+                string ke = h + ":filelog";
+
+                if (string.IsNullOrEmpty(db.HashGet(ke, DirPath)))
+                {
+                    var keys = manager.GetKeys(h + ":" + @"[20]*");
+                    foreach (var k in keys)
+                    {
+                        manager.DeleteKey(k);
+                    }
+                }
+                // 设置最新的文件名
+                db.HashSet(ke, DirPath, fullname + "," + db.HashGet(ke, DirPath));
+
+                /********************************/
+
+            }
+
+        }
+
+        private static void ImportRedisData(List<RateGainEntity> tempList)
+        {
+            var manager = (new RedisCacheCollection())["Db4"];
+            var db = manager.GetDataBase();
+            foreach (var c in tempList)
+            {
+                var json = db.StringGet(c.Id);
+                List<RateGainEntity> oldList = null;
+                try
+                {
+                    if (!string.IsNullOrEmpty(json))
+                    {
+                        oldList = JsonConvert.DeserializeObject<List<RateGainEntity>>(json);
+                    }
+                }
+                catch (Exception)
+                {
+                    oldList = null;
+                }
+                if (oldList != null && oldList.Count > 0)
+                {
+                    var old =
+                        oldList.FirstOrDefault(x => x.Channel == c.Channel && x.RoomType == c.RoomType);
+                    //  更新价格
+                    if (old != null)
+                    {
+                        old.Currency = c.Currency;
+                        old.Rate = old.Rate > c.Rate ? c.Rate : old.Rate;
+                    }
+                    else
+                    {
+                        oldList.Add(c);
+                    }
+                    db.StringSet(c.Id, JsonConvert.SerializeObject(oldList));
+                }
+                else
+                {
+                    db.StringSet(c.Id, JsonConvert.SerializeObject(new[] { c }));
+                }
+                // 为该key设置过期时间 [ 该函数必须指定 DateTimeKind 枚举类型，不能使用默认枚举值DateTimeKind.unspecified
+                var date = c.Id.Split(':')[1];
+                var expiry = DateTime.SpecifyKind(DateTime.Parse(date).AddDays(1), DateTimeKind.Local);
+                db.KeyExpire(c.Id, expiry);
+            }
         }
 
     }

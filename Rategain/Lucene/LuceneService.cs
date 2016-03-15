@@ -17,8 +17,8 @@ namespace RateGainData.Console
     public interface ILuceneService
     {
         void BuildIndex(IEnumerable<SampleDataFileRow> dataToIndex);
-        IEnumerable<SampleDataFileRow> Search(string searchTerm);
-        void CloseDirectory();
+        SampleDataFileRow Search(string searchTerm);
+        void disposeIndexDirectory();
     }
 
     public class LuceneService : ILuceneService
@@ -69,37 +69,30 @@ namespace RateGainData.Console
             
         }
 
-        public IEnumerable<SampleDataFileRow> Search(string searchTerm)
+        public SampleDataFileRow Search(string searchTerm)
         {
-            IndexSearcher searcher = new IndexSearcher(luceneIndexDirectory);
-            QueryParser parser = new QueryParser(Version.LUCENE_30,"LineText", analyzer);
+            var searcher = new IndexSearcher(luceneIndexDirectory);
+            var parser = new QueryParser(Version.LUCENE_30, "LineText", analyzer);
 
-            Query query = parser.Parse(searchTerm);
-            
-            // 找到最可能匹配的三个, 可以直接返回最匹配的一条
-            var hitsFound = searcher.Search(query, null,1);
+            var query = parser.Parse(searchTerm);
 
-            var results = new List<SampleDataFileRow>();
-
+            // 找到最可能匹配的1条
+            var hitsFound = searcher.Search(query, null, 1);
             if (!hitsFound.ScoreDocs.Any())
                 return null;
 
-            for (int i = 0; i < hitsFound.ScoreDocs.Count(); i++)
+            var doc = searcher.Doc(hitsFound.ScoreDocs[0].Doc);
+
+            var tempDataFileRow = new SampleDataFileRow
             {
-                var tempDataFileRow = new SampleDataFileRow();
-
-                var doc = searcher.Doc(hitsFound.ScoreDocs[i].Doc);
-
-                tempDataFileRow.LineNumber = int.Parse(doc.Get("LineNumber"));
-                tempDataFileRow.LineText = doc.Get("LineText");
-                tempDataFileRow.Score = hitsFound.ScoreDocs[i].Score;
-
-                results.Add(tempDataFileRow);
-            }
-            return new List<SampleDataFileRow> {results.OrderByDescending(x => x.Score).FirstOrDefault() };
+                LineNumber = int.Parse(doc.Get("LineNumber")),
+                LineText = doc.Get("LineText"),
+                Score = hitsFound.ScoreDocs[0].Score
+            };
+            return tempDataFileRow;
         }
 
-        public void CloseDirectory()
+        public void disposeIndexDirectory()
         {
             luceneIndexDirectory.Dispose();
         }
