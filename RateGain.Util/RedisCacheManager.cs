@@ -90,38 +90,62 @@ namespace RateGain.Util
             var str = item is string
                 ? item as string
                 : JsonConvert.SerializeObject(item);
-            Insert(key, str, DateTime.MaxValue);
+            Insert(key, str,TimeSpan.MaxValue);
         }
 
-        public void Insert<T>(string key, T item, int minute = 30)
+        public void Insert<T>(string key, T item, TimeSpan expire)
         {
+
             try
             {
-                var db = Connection.GetDatabase(Index);
-                var json = item is string ? item as string : JsonConvert.SerializeObject(item);
-                db.StringSet(key, json, TimeSpan.FromMinutes(minute));
+                using (var conn = ConnectionMultiplexer.Connect(Opt))
+                {
+                    var db = conn.GetDatabase(Index);
+                    var json = item is string ? item as string : JsonConvert.SerializeObject(item);
+
+                    if (db.StringSet(key, json, expire))
+                    {
+                        LogHelper.Write(key + " expire timespan " + expire, LogHelper.LogMessageType.Debug);
+                    }
+                    conn.Close();
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Error);
+                // ignore
             }
         }
 
+        /// <summary>
+        /// 内部转换为TimeSpan，即将过期，推荐使用重载方法
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="item"></param>
+        /// <param name="expire"></param>
+        [ObsoleteAttribute]
         public void Insert<T>(string key, T item, DateTime expire)
         {
             try
             {
-                var db = Connection.GetDatabase(Index);
-                var json = item is string ? item as string : JsonConvert.SerializeObject(item);
-                db.StringSet(key, json);
-                // 必须指定是Utc时间还是本地时间
-                expire = DateTime.SpecifyKind(expire, DateTimeKind.Local);
-                db.KeyExpire(key, expire);
-
+                using (var conn = ConnectionMultiplexer.Connect(Opt))
+                {
+                    var db = conn.GetDatabase(Index);
+                    var json = item is string ? item as string : JsonConvert.SerializeObject(item);
+                    var timespan = TimeSpan.FromSeconds((expire - DateTime.Now).TotalSeconds);
+                    if (timespan > TimeSpan.Zero)
+                    {
+                        if (db.StringSet(key, json, timespan))
+                        {
+                            LogHelper.Write(key+ " expire timespan " +timespan, LogHelper.LogMessageType.Debug);
+                        }
+                    }
+                    conn.Close();
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Error);
+                // ignore
             }
         }
 
