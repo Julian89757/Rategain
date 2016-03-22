@@ -25,18 +25,16 @@ namespace RateGainData.Console
         #endregion
 
         // 下载日期文件夹
-        public string DatePartDir { get; set; }
+        private string DatePartDir { get; set; }
 
         // SFTP下载客户端
-        public SFTPOperation SftpClient { get; set; }
+        private SFTPOperation SftpClient { get; set; }
 
-        public Func<string, HandleResp> ExecFunc { get; set; }
-
-        public int FileCount { get; set; }
+        public Func<string, HandleResp> ExecFunc { private get; set; }
 
         public FtpDownload()
         {
-            DatePartDir = DateTime.Now.AddDays(-1).Date.ToString("yyyy-MM-dd");
+            DatePartDir = DateTime.Now.Date.ToString("yyyy-MM-dd");
             SftpClient = new SFTPOperation(FptHost, "22", FtpUserId, FtpPwd);
         }
 
@@ -55,7 +53,6 @@ namespace RateGainData.Console
                 return;
             }
 
-            FileCount = remainDLlist.Count();
             LogHelper.Write(string.Format("{0} need download {1} files", DatePartDir, remainDLlist.Count()), LogHelper.LogMessageType.Info);
 
             SftpClient.Connect();

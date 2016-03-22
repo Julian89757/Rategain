@@ -20,23 +20,25 @@ namespace RateGainData.Console
 
         static FileToRedis()
         {
-            var datePartDir = DateTime.Now.AddDays(-1).Date.ToString("yyyy-MM-dd");
+            var datePartDir = DateTime.Now.Date.ToString("yyyy-MM-dd");
             DirPath += datePartDir;
         }
 
+        [TimingAttribute]
         public void ToRedis()
         {
             if (Directory.Exists(DirPath))
             {
                 var dir = new DirectoryInfo(DirPath);
-                var filenames =
-                    dir.GetFiles().Select(x => new KeyValuePair<string, string>(x.FullName, x.Name));
+                var filenames = dir.GetFiles().Select(x => x.FullName).ToList();
 
-                var i = 0;
-                filenames.ToList().ForEach(x =>
+                //  串行化
+                // filenames.ForEach(x => GenerateRedisData(x));
+
+                // 并行运算
+                Parallel.ForEach(filenames, item =>
                 {
-                    i++;
-                    GenerateRedisData(x.Key);
+                    GenerateRedisData(item);
                 });
             }
             System.Console.WriteLine(string.Format("{0}-end import", DateTime.Now));
@@ -73,7 +75,11 @@ namespace RateGainData.Console
                                 {
                                     continue;
                                 }
-                                tempList.Add(record);
+                                foreach (var roomtype in record.RoomType.Split(','))
+                                {
+                                    record.RoomType = roomtype;
+                                    tempList.Add(record);
+                                };
                             }
                             catch (KeyNotFoundException)
                             {
@@ -126,7 +132,7 @@ namespace RateGainData.Console
 
                 if (string.IsNullOrEmpty(db.HashGet(ke, DirPath)))
                 {
-                    var keys = manager.GetKeys(h + ":" + @"[20]*");
+                    var keys = manager.GetKeys(h + ":" + @"20??-??-??:*"); 
                     foreach (var k in keys)
                     {
                         manager.DeleteKey(k);
