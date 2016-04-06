@@ -7,9 +7,6 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using CsvHelper;
-using log4net;
-using log4net.Config;
-using log4net.Core;
 using RateGain.Util;
 using StackExchange.Redis;
 

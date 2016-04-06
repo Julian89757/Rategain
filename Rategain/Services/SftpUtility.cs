@@ -5,14 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using RateGain.Util;
-
-// 这个组件开启 SFTP over ssh 下载
 using Renci.SshNet;
-
-/************************描述 SFTP操作类******************************************  
-**描述    : SFTP操作类 
-**注意    : 所有远程目录或路径可包含工作目录(sftp.WorkingDirectory)，此时路径以"/"开头；也可以不包含工作目录，此时路径不以"/"开头 
-*********************************************************************************/
 
 namespace RateGainData.Console
 { 
@@ -139,14 +132,22 @@ namespace RateGainData.Console
             //    }
             //    await task;
             //}
-
-            var task = Task.Run(() =>
+            // 这样是不是更合理一点
+            var task= Task.Factory.StartNew(x =>
             {
                 using (var saveFile = File.OpenWrite(localPath))
                 {
                     sftp.DownloadFile(remotePath, saveFile);
                 }
-            });
+            }, localPath);
+
+            //var task = Task.Run(() =>
+            //{
+            //    using (var saveFile = File.OpenWrite(localPath))
+            //    {
+            //        sftp.DownloadFile(remotePath, saveFile);
+            //    }
+            //});
             //  创建延续任务
             if (cbFunc != null)
             {

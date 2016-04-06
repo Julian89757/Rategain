@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
-using log4net;
 using Newtonsoft.Json;
 using RateGain.Util;
 using RateGainData.Console.Aspects;
