@@ -23,7 +23,7 @@ namespace RateGainData.Console
             DirPath += datePartDir;
         }
 
-        [TimingAttribute]
+        [Timing]
         public void ToRedis()
         {
             if (Directory.Exists(DirPath))

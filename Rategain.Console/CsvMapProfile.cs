@@ -60,7 +60,7 @@ namespace RateGainData.Console
 
         private static string RoomtypeMap(string PRODUCT)
         {
-            var temp = PRODUCT.Split(',').ToList().FindAll(x => x.IndexOf("RT", 0, StringComparison.InvariantCultureIgnoreCase) < 0);
+            var temp = PRODUCT.Split(',').ToList().FindAll(x => x.IndexOf("RM", 0, StringComparison.InvariantCultureIgnoreCase) >= 0);
             var roomtypes = temp.Select(x => x.Substring(x.IndexOf('-') + 1));
             return roomtypes.Aggregate((x, y) => x + "," + y);
         }
