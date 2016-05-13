@@ -24,7 +24,7 @@ namespace RateGainData.Console
         }
 
         [Timing]
-        public void ToRedis()
+        public static void ToRedis()
         {
             if (Directory.Exists(DirPath))
             {
@@ -53,9 +53,10 @@ namespace RateGainData.Console
             {
                 using (var tr = new StreamReader(fullName, Encoding.Default))
                 {
+                    var tempFileName = fullName.Substring(fullName.LastIndexOf('\\') + 1);
                     var csv = new CsvReader(tr);
                     {
-                        var mapProfile = new CsvMapProfile();
+                        var mapProfile = new CsvMapProfile(tempFileName);
                         csv.Configuration.RegisterClassMap(mapProfile);
 
                         while (csv.Read())
@@ -74,10 +75,13 @@ namespace RateGainData.Console
                                 {
                                     continue;
                                 }
+
+                                // 这里将体现我对RateGainEntity 类实现 ICloneable接口的意义
                                 foreach (var roomtype in record.RoomType.Split(','))
                                 {
-                                    record.RoomType = roomtype;
-                                    tempList.Add(record);
+                                    var cloneObj = (RateGainEntity)(record.Clone());
+                                    cloneObj.RoomType = roomtype;
+                                    tempList.Add(cloneObj);
                                 };
                             }
                             catch (KeyNotFoundException)
@@ -120,6 +124,9 @@ namespace RateGainData.Console
         // 清除这一批次下 该酒店之前的所有数据
         private static void RemovePreData(List<RateGainEntity> temp, string fullname)
         {
+            var timeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            var fileName = fullname.Substring(fullname.LastIndexOf('\\') + 1);
+
             var manager = (new RedisCacheCollection())["Db4"];
             var db = manager.GetDataBase();
             // 一般情况下，一个文件内只有一个酒店
@@ -138,7 +145,7 @@ namespace RateGainData.Console
                     }
                 }
                 // 设置最新的文件名
-                db.HashSet(ke, DirPath, fullname + "," + db.HashGet(ke, DirPath));
+                db.HashSet(ke, timeStamp, fileName + "," + db.HashGet(ke, timeStamp));
 
                 /********************************/
 

@@ -116,47 +116,31 @@ namespace RateGainData.Console
 
 
         // 这里是级联任务
-        public  Task GetAsync(string remotePath, string localPath, Func<string, HandleResp> cbFunc)
+        public  Task<string> GetAsync(string remotePath, string localPath, Func<string, HandleResp> cbFunc)
         {
-            //using (var saveFile = File.OpenWrite(destination))
-            //{
-            //    var task = Task.Factory.FromAsync( sftp.BeginDownloadFile(source, saveFile,null,null), sftp.EndDownloadFile);
-            //   // var task = Task.Factory.StartNew(()=> sftp.DownloadFile(source, saveFile));
-            //    //  创建延续任务
-            //    if (cbFunc != null)
-            //    {
-            //        task = task.ContinueWith(x =>
-            //        {
-            //            cbFunc(destination);
-            //        });
-            //    }
-            //    await task;
-            //}
+            
             // 这样是不是更合理一点
-            var task= Task.Factory.StartNew(x =>
+            var task= Task.Factory.StartNew(() =>
             {
                 using (var saveFile = File.OpenWrite(localPath))
                 {
                     sftp.DownloadFile(remotePath, saveFile);
+                    return localPath;
                 }
-            }, localPath);
+            });
 
-            //var task = Task.Run(() =>
-            //{
-            //    using (var saveFile = File.OpenWrite(localPath))
-            //    {
-            //        sftp.DownloadFile(remotePath, saveFile);
-            //    }
-            //});
+            Task<string> computeTask = null;
             //  创建延续任务
             if (cbFunc != null)
             {
-                task = task.ContinueWith(x =>
+                computeTask = task.ContinueWith(x =>
                 {
-                    cbFunc(localPath);
-                });
+                    cbFunc(x.Result);
+                    return x.Result;
+                },TaskContinuationOptions.NotOnFaulted);
+                // 如果指定任务的延续任务选项没有得到满足，延续任务将不会被scheduled，而会被cancled，这将引起TaskCanceledException 异常：用于告知任务取消的异常
             }
-            return  task;
+            return computeTask;
         }
 
         /// <summary>  

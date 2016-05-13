@@ -19,30 +19,34 @@ namespace RateGainData.Console
         {
             LogHelper.Init();
 
-             // 清除之前非法的keyValue
-            try
-            {
-                var manage = new RedisCacheCollection()["DB4"];
-                var keys = manage.GetKeys("*");
-                foreach (var key in keys)
-                {
-                    var date = key.ToString().Split(':')[1];
-                    DateTime outDate;
-                    if (DateTime.TryParse(date, out outDate) && DateTime.SpecifyKind(outDate, DateTimeKind.Local) >= DateTime.Now.Date)
-                        continue;
-                    manage.DeleteKey(key);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogHelper.Write("Redis server do not start.", LogHelper.LogMessageType.Error, ex);
-            }
+            // 清除之前非法的keyValue
+            /*  try
+              {
+                  var manage = new RedisCacheCollection()["DB4"];
+                  var keys = manage.GetKeys("*");
+                  foreach (var key in keys)
+                  {
+                      var date = key.ToString().Split(':')[1];
+                      DateTime outDate;
+                      if (DateTime.TryParse(date, out outDate) && DateTime.SpecifyKind(outDate, DateTimeKind.Local) >= DateTime.Now.Date)
+                          continue;
+                      manage.DeleteKey(key);
+                  }
+              }
+              catch (Exception ex)
+              {
+                  LogHelper.Write("Redis server do not start.", LogHelper.LogMessageType.Error, ex);
+              }
+              */
+
+            (new RedisCacheCollection())["Db4"].Clear();
 
             HotelNameMapping.InitMappinng();
 
             var ftpDownLoad = new FtpDownload()
             {
-                ExecFunc = FileToRedis.GenerateRedisData
+                AnyFileDownLoadedOperate = FileToRedis.GenerateRedisData,
+                AllFileDownLoadedOperate =  FileToRedis.ToRedis
             };
             ftpDownLoad.DownLoadList();
 

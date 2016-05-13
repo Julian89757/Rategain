@@ -9,15 +9,11 @@ namespace RateGainData.Console
 {
     public sealed class CsvMapProfile : CsvClassMap<RateGainEntity>
     {
-        public CsvMapProfile()
+        public CsvMapProfile(string fileName)
         {
-            // Map(m => m.RategainHotelId).Name("PROPERTY_ID");
-            // Map(m => m.PropertyName).Name("PROPERTY_NAME");
-
             Map(m => m.CrsHotelId).ConvertUsing(x => HotelMap(x.GetField("PROPERTY_NAME")));
 
             Map(m => m.Channel).Name("CHANNEL");
-
 
             Map(m => m.Date).Name("CHECK_IN_DATE");
 
@@ -30,9 +26,6 @@ namespace RateGainData.Console
 
             Map(m => m.Currency).Name("CURRENCY");
 
-            //Map(m => m.PromotionFlag).Name("PROMOTION").Default(' ');
-            //Map(m => m.RestrictionFlag).Name("RESTRICTION").Default(' ');
-
             // 匹配 roomtype
             Map(m => m.RoomType).ConvertUsing(x => RoomtypeMap(x.GetField("PRODUCT")));
 
@@ -42,9 +35,7 @@ namespace RateGainData.Console
 
             Map(m => m.Intax).ConvertUsing(x => x.GetField("TAX_TYPE") == "inclusive");         // Name("TAX_TYPE")
 
-            //Map(m => m.RoomDecription).Name("DESCRIPTION").Ignore();
-            //Map(m => m.DateAdded).Ignore();
-            //Map(m => m.DateUpdated).Ignore();
+            Map(m => m.Footing).ConvertUsing(x => new Tuple<string,int>(fileName, x.Row));
         }
 
         private static string HotelMap(string PROPERTY_NAME)

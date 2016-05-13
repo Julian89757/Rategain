@@ -10,7 +10,10 @@ using Newtonsoft.Json;
 
 namespace RateGainData.Console
 {
-    public class RateGainEntity
+    /// <summary>
+    /// 自定义实现 ICloneable接口的待复制对象
+    /// </summary>
+    public class RateGainEntity:ICloneable
     {
         [JsonIgnore]
         public string Id
@@ -50,5 +53,18 @@ namespace RateGainData.Console
         public string RoomType { get; set; }
 
         public bool Intax { get; set; }
+
+        // 为记录添加注脚
+        public Tuple<string,int> Footing { get; set; }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }
+
+/*
+ MemberwiseClone() 是浅表复制，值类型直接拷贝，引用类型只拷贝引用，实际上引用的是一个对象，
+ 而string类型作为引用类型，MemberwiseClone拷贝是一个特例，可以认为与值类型一样，这里的自定义拷贝就使用了这个特例。
+*/

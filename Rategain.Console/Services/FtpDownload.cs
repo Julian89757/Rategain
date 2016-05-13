@@ -8,34 +8,38 @@ using System.Threading.Tasks;
 using RateGain.Util;
 using RateGainData.Console.Aspects;
 
-// PostSharp use for AOP， Log4net is just for log feature
+// PostSharp use for AOP， Log4net is just for log feature.  PNI.EA.Logging combined with two.
+
 namespace RateGainData.Console
 {
     public class FtpDownload
     {
         #region 配置变量
-        public static readonly string FptHost = ConfigurationManager.AppSettings["FtpUrl"];
 
-        public static readonly string FtpUserId = ConfigurationManager.AppSettings["FtpUserId"];
+        private static readonly string FptHost = ConfigurationManager.AppSettings["FtpUrl"];
+        private static readonly string FtpUserId = ConfigurationManager.AppSettings["FtpUserId"];
+        private static readonly string FtpPwd = ConfigurationManager.AppSettings["FtpPwd"];
+        private static readonly string RemotePath = ConfigurationManager.AppSettings["RemotePath"];
+        private static readonly string DownloadRootDir = ConfigurationManager.AppSettings["DownloadDir"];
 
-        public static readonly string FtpPwd = ConfigurationManager.AppSettings["FtpPwd"];
+        /// <summary>
+        /// 待下载的日期文件夹
+        /// </summary>
+        private readonly string DatePartDir = DateTime.Now.ToString("yyyy-MM-dd");
 
-        public static readonly string DownloadDir = ConfigurationManager.AppSettings["DownloadDir"];
+        private readonly string TimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
 
         #endregion
 
-        // 下载日期文件夹
-        private string DatePartDir { get; set; }
-
         // SFTP下载客户端
-        private SFTPOperation SftpClient { get; set; }
+        private readonly SFTPOperation _sftpClient = new SFTPOperation(FptHost, "22", FtpUserId, FtpPwd);
 
-        public Func<string, HandleResp> ExecFunc { private get; set; }
+        public Func<string, HandleResp> AnyFileDownLoadedOperate { private get; set; }
+
+        public Action AllFileDownLoadedOperate { private get; set; }
 
         public FtpDownload()
         {
-            DatePartDir = DateTime.Now.Date.ToString("yyyy-MM-dd");
-            SftpClient = new SFTPOperation(FptHost, "22", FtpUserId, FtpPwd);
         }
 
         [Log(UserCaseName = "SFTP")]
@@ -43,43 +47,54 @@ namespace RateGainData.Console
         {
             //  正则表达式匹配 \w*_2016-01-18.csv$
             var patternString = @"\w*_" + DatePartDir + ".csv" + "$";
-            var dateList = SftpClient.GetPatternFileList("/", patternString);
-            Directory.CreateDirectory(DownloadDir + "/" + DatePartDir);
-
-            var  remainDLlist = dateList.ToArray().Where(x => !File.Exists(DownloadDir + DatePartDir + @"\" + x)).ToList();
+            var dateList = _sftpClient.GetPatternFileList(RemotePath, patternString);
+            Directory.CreateDirectory(DownloadRootDir + "/" + DatePartDir);
+            //  本地文件已经保存，可以每天执行多次任务，检查添加的新文件。
+            var remainDLlist = dateList.ToArray().Where(x => !File.Exists(DownloadRootDir + DatePartDir + @"\" + x)).ToList();
 
             if (!remainDLlist.Any())
             {
+                LogHelper.Write(string.Format("This time {0} we do  not need download files", TimeStamp), LogHelper.LogMessageType.Info);
                 return;
             }
 
-            LogHelper.Write(string.Format("{0} need download {1} files", DatePartDir, remainDLlist.Count()), LogHelper.LogMessageType.Info);
+            LogHelper.Write(string.Format("This time {0} we need download {1} files", TimeStamp, remainDLlist.Count), LogHelper.LogMessageType.Info);
 
-            SftpClient.Connect();
+            _sftpClient.Connect();
             var tasks = new List<Task>();
-            foreach (var ii in remainDLlist)
+            foreach (var fileName in remainDLlist)
             {
-                var remotePath = "/" + ii;
-                var localPath = DownloadDir + DatePartDir + @"\" + ii;
-                tasks.Add(SftpClient.GetAsync(remotePath, localPath, ExecFunc));
+                var remotePath = RemotePath + fileName;
+                var localPath = DownloadRootDir + DatePartDir + @"\" + fileName;
+                tasks.Add(_sftpClient.GetAsync(remotePath, localPath, AnyFileDownLoadedOperate));
             }
 
             //  等待级联子任务结束
-            Task.WaitAll(tasks.ToArray());
-            SftpClient.Disconnect();
+            try
+            {
+                Task.WaitAll(tasks.Where(x => x != null).ToArray());
+                _sftpClient.Disconnect();
+                if (AnyFileDownLoadedOperate == null)
+                {
+                    if (AllFileDownLoadedOperate != null)
+                    {
+                        AllFileDownLoadedOperate();
+                    }
+                }
+            }
+            catch (AggregateException ex)
+            {
+                ex.Handle(e =>
+                {
+                    if (!(e is TaskCanceledException))
+                        LogHelper.Write(e.Message, LogHelper.LogMessageType.Fatal, e);
+                    return true;
+                });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Error, ex);
+            }
         }
-
-        //[DownLoadLog]
-        //private void CbFunc(IAsyncResult result)
-        //{
-        //    var destination = (string)result.AsyncState;
-        //    {
-        //        if (ExecFunc != null)
-        //        {
-        //            ExecFunc(destination);
-        //        }
-        //    }
-        //}
-
     }
 }
