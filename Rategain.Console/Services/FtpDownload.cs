@@ -73,6 +73,7 @@ namespace RateGainData.Console
             try
             {
                 Task.WaitAll(tasks.Where(x => x != null).ToArray());
+
                 _sftpClient.Disconnect();
                 if (AnyFileDownLoadedOperate == null)
                 {

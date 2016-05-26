@@ -48,10 +48,7 @@ namespace RateGainData.Console
         {
             //  单csv文件数据对象
             var tempList = new List<RateGainEntity>();
-
-            try
-            {
-                using (var tr = new StreamReader(fullName, Encoding.Default))
+            using (var tr = new StreamReader(fullName, Encoding.Default))
                 {
                     var tempFileName = fullName.Substring(fullName.LastIndexOf('\\') + 1);
                     var csv = new CsvReader(tr);
@@ -71,7 +68,7 @@ namespace RateGainData.Console
                                 }
                                 if (outDate < DateTime.Now.Date || record.Availablity != "O" || record.Rate == 0 ||
                                     record.Promotion == null || record.Restriction == "Y" ||
-                                    record.CrsHotelId == null || record.Channel == null || record.RoomType == "")
+                                    record.CrsHotelId == null || record.Channel == null || string.IsNullOrEmpty(record.RoomType))
                                 {
                                     continue;
                                 }
@@ -86,7 +83,11 @@ namespace RateGainData.Console
                             }
                             catch (KeyNotFoundException)
                             {
-                                
+                                //ingore
+                            }
+                            catch(Exception ex)
+                            {
+                                LogHelper.Write(string.Format("{0} line {1} cause {2}",fullName,csv.Row,ex.Message), LogHelper.LogMessageType.Error);
                             }
                         }
                         if (!tempList.Any())
@@ -96,15 +97,15 @@ namespace RateGainData.Console
                     }
                 }
 
+            try
+            {
                 RemovePreData(tempList, fullName);
-
                 ImportRedisData(tempList);
-
                 return new HandleResp() { Status = 1, EffectiveRecord = tempList.Count };
             }
             catch (IOException ex)
             {
-                return new HandleResp()
+                return new HandleResp
                 {
                     Status = 0,
                     EffectiveRecord = tempList.Count,
@@ -113,11 +114,11 @@ namespace RateGainData.Console
             }
             catch (RedisConnectionException ex)
             {
-                return new HandleResp() { Status = 0, EffectiveRecord = tempList.Count, Desc = "Redis server can not connect" };
+                return new HandleResp { Status = 0, EffectiveRecord = tempList.Count, Desc = "Redis server can not connect" };
             }
             catch (Exception ex)
             {
-                return new HandleResp() { Status = 0, EffectiveRecord = tempList.Count, Desc = ex.Message };
+                return new HandleResp { Status = 0, EffectiveRecord = tempList.Count, Desc = ex.Message };
             }
         }
 
@@ -138,7 +139,7 @@ namespace RateGainData.Console
 
                 if (string.IsNullOrEmpty(db.HashGet(ke, DirPath)))
                 {
-                    var keys = manager.GetKeys(h + ":" + @"20??-??-??:*"); 
+                    var keys = manager.GetKeys(h + ":" + @"20??-??-??:*");
                     foreach (var k in keys)
                     {
                         manager.DeleteKey(k);
@@ -147,10 +148,8 @@ namespace RateGainData.Console
                 // 设置最新的文件名
                 db.HashSet(ke, timeStamp, fileName + "," + db.HashGet(ke, timeStamp));
 
-                /********************************/
-
+                /***********************************************/
             }
-
         }
 
         private static void ImportRedisData(List<RateGainEntity> tempList)
