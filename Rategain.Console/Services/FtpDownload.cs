@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using RateGain.Util;
-using RateGainData.Console.Aspects;
 
 // PostSharp use for AOP， Log4net is just for log feature.  PNI.EA.Logging combined with two.
 
@@ -34,7 +33,7 @@ namespace RateGainData.Console
         // SFTP下载客户端
         private readonly SFTPOperation _sftpClient = new SFTPOperation(FptHost, "22", FtpUserId, FtpPwd);
 
-        public Func<string, HandleResp> AnyFileDownLoadedOperate { private get; set; }
+        public Action<string> AnyFileDownLoadedOperate { private get; set; }
 
         public Action AllFileDownLoadedOperate { private get; set; }
 
@@ -42,9 +41,10 @@ namespace RateGainData.Console
         {
         }
 
-        [Log(UserCaseName = "SFTP")]
         public void DownLoadList()
         {
+            LogHelper.Write("SFTP start check files", LogHelper.LogMessageType.Info);
+
             //  正则表达式匹配 \w*_2016-01-18.csv$
             var patternString = @"\w*_" + DatePartDir + ".csv" + "$";
             var dateList = _sftpClient.GetPatternFileList(RemotePath, patternString);
@@ -82,6 +82,8 @@ namespace RateGainData.Console
                         AllFileDownLoadedOperate();
                     }
                 }
+
+                LogHelper.Write("SFTP async download completed", LogHelper.LogMessageType.Info);
             }
             catch (AggregateException ex)
             {

@@ -116,7 +116,7 @@ namespace RateGainData.Console
 
 
         // 这里是级联任务
-        public  Task<string> GetAsync(string remotePath, string localPath, Func<string, HandleResp> cbFunc)
+        public  Task<string> GetAsync(string remotePath, string localPath, Action<string> cbFunc)
         {
             
             // 这样是不是更合理一点
@@ -138,7 +138,8 @@ namespace RateGainData.Console
                     cbFunc(x.Result);
                     return x.Result;
                 },TaskContinuationOptions.NotOnFaulted);
-                // 如果指定任务的延续任务选项没有得到满足，延续任务将不会被scheduled，而会被cancled，这将引起TaskCanceledException 异常：用于告知任务取消的异常
+
+                // 如果指定任务的延续任务选项没有得到满足，延续任务将不会被scheduled，而会被cancled，这将引起 TaskCanceledException异常：用于告知任务取消的异常
             }
             return computeTask;
         }

@@ -60,10 +60,6 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PostSharp, Version=4.3.9.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
-      <HintPath>..\packages\PostSharp.4.3.9-alpha\lib\net35-client\PostSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Renci.SshNet, Version=2013.4.7.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SSH.NET.2013.4.7\lib\net40\Renci.SshNet.dll</HintPath>
       <Private>True</Private>
@@ -85,10 +81,6 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aspects\ExceptionAttribute.cs" />
-    <Compile Include="Aspects\LogAttribute.cs" />
-    <Compile Include="Aspects\RunInTransactionAttribute.cs" />
-    <Compile Include="Aspects\TimingAttribute.cs" />
     <Compile Include="Lucene\LuceneService.cs" />
     <Compile Include="Lucene\SampleDataFileReader.cs" />
     <Compile Include="Lucene\SampleDataFileRow.cs" />

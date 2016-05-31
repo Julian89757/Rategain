@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using CsvHelper;
 using Newtonsoft.Json;
 using RateGain.Util;
-using RateGainData.Console.Aspects;
 using StackExchange.Redis;
+using System.Diagnostics;
 
 namespace RateGainData.Console
 {
@@ -23,9 +23,10 @@ namespace RateGainData.Console
             DirPath += datePartDir;
         }
 
-        [Timing]
         public static void ToRedis()
         {
+            var _stopWatch = Stopwatch.StartNew();
+
             if (Directory.Exists(DirPath))
             {
                 var dir = new DirectoryInfo(DirPath);
@@ -40,12 +41,14 @@ namespace RateGainData.Console
                     GenerateRedisData(item);
                 });
             }
-            System.Console.WriteLine(string.Format("{0}-end import", DateTime.Now));
+            var msg = string.Format("Import redis take {0} ms to execute", _stopWatch.ElapsedMilliseconds);
+            LogHelper.Write(msg, LogHelper.LogMessageType.Info);
         }
 
-        [ImportLog]
-        public static HandleResp GenerateRedisData(string fullName)
+        public static void  GenerateRedisData(string fullName)
         {
+            LogHelper.Write(string.Format("{0} download completed, Now start to import redis server... ", fullName), LogHelper.LogMessageType.Info);
+
             //  单csv文件数据对象
             var tempList = new List<RateGainEntity>();
             using (var tr = new StreamReader(fullName, Encoding.Default))
@@ -92,7 +95,8 @@ namespace RateGainData.Console
                         }
                         if (!tempList.Any())
                         {
-                            return new HandleResp { Status = 1, EffectiveRecord = 0 };
+                            LogHelper.Write(string.Format("{0} has no effective record.", fullName), LogHelper.LogMessageType.Info);
+                            return;
                         }
                     }
                 }
@@ -101,24 +105,19 @@ namespace RateGainData.Console
             {
                 RemovePreData(tempList, fullName);
                 ImportRedisData(tempList);
-                return new HandleResp() { Status = 1, EffectiveRecord = tempList.Count };
+                LogHelper.Write(string.Format("{0} {1} effective record.", fullName, tempList.Count), LogHelper.LogMessageType.Info);
             }
             catch (IOException ex)
             {
-                return new HandleResp
-                {
-                    Status = 0,
-                    EffectiveRecord = tempList.Count,
-                    Desc = ex.Message
-                };
+                LogHelper.Write(string.Format("{0} {1} effective record.{2}", fullName, tempList.Count, ex.Message), LogHelper.LogMessageType.Error);
             }
             catch (RedisConnectionException ex)
             {
-                return new HandleResp { Status = 0, EffectiveRecord = tempList.Count, Desc = "Redis server can not connect" };
+                LogHelper.Write(string.Format("{0} {1} effective record.{2}", fullName, tempList.Count, ex.Message), LogHelper.LogMessageType.Fatal);
             }
             catch (Exception ex)
             {
-                return new HandleResp { Status = 0, EffectiveRecord = tempList.Count, Desc = ex.Message };
+                LogHelper.Write(string.Format("{0} {1} effective record.{2}", fullName, tempList.Count, ex.Message), LogHelper.LogMessageType.Fatal);
             }
         }
 
