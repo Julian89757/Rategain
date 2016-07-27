@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using RateGain.Util;
 using Renci.SshNet;
 
-namespace RateGainData.Console
+namespace RateGain.Console
 { 
-    public class SFTPOperation
+    public class SftpOperation
     {
         #region 字段或属性
 
@@ -20,7 +20,7 @@ namespace RateGainData.Console
         #endregion
 
  
-        public SFTPOperation(string ip, string port, string user, string pwd)
+        public SftpOperation(string ip, string port, string user, string pwd)
         {
             sftp = new SftpClient(ip, Int32.Parse(port), user, pwd);
         }

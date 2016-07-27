@@ -8,9 +8,8 @@ using System.Text;
 using System.Threading;
 using CsvHelper;
 using RateGain.Util;
-using StackExchange.Redis;
 
-namespace RateGainData.Console
+namespace RateGain.Console
 {
     // 定时执行ftp下载和导入任务
     public class Program
@@ -18,30 +17,16 @@ namespace RateGainData.Console
         static void Main()
         {
             LogHelper.Init();
-
-            // 清除之前非法的keyValue
-            /*  try
-              {
-                  var manage = new RedisCacheCollection()["DB4"];
-                  var keys = manage.GetKeys("*");
-                  foreach (var key in keys)
-                  {
-                      var date = key.ToString().Split(':')[1];
-                      DateTime outDate;
-                      if (DateTime.TryParse(date, out outDate) && DateTime.SpecifyKind(outDate, DateTimeKind.Local) >= DateTime.Now.Date)
-                          continue;
-                      manage.DeleteKey(key);
-                  }
-              }
-              catch (Exception ex)
-              {
-                  LogHelper.Write("Redis server do not start.", LogHelper.LogMessageType.Error, ex);
-              }
-              */
-
-            (new RedisCacheCollection())["Db4"].Clear();
-
-            HotelNameMapping.InitMappinng();
+          //  (new RedisCacheCollection())["Db4"].Clear();
+            try
+            {
+                HotelNameMapping.InitMappinng();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Write("There is no map file information", LogHelper.LogMessageType.Error);
+                return;
+            }
 
             var ftpDownLoad = new FtpDownload()
             {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace RateGainData.Console
+namespace RateGain.Console
 {
     public interface ISampleDataFileReader
     {

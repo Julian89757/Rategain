@@ -1,0 +1,728 @@
+﻿/*
+    本配置文件为 CMS Hotel与Rategain hotelName进行匹配的结果，程序将以此匹配hotel name，
+    其中设置 Enable为false将不参与匹配,Passed 是新加入的rategain hotelname等待人为审核。
+*/
+
+[
+  {
+    "HotelCode": "PARMIL01",
+    "CmsName": "Millennium Hotel Paris Opera",
+    "MapName": "Millennium Hotel Paris Opera Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "CDGMIL01",
+    "CmsName": "Millennium Hotel Paris Charles de Gaulle",
+    "MapName": "Millennium Hotel Paris Charles de Gaulle Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "GPRGML01",
+    "CmsName": "Grand Hotel Palace",
+    "MapName": "Grand Hotel Palace Rome Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MAYMIL01",
+    "CmsName": "Millennium Hotel London Mayfair",
+    "MapName": "Millennium Hotel London Mayfair Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "GLOMIL01",
+    "CmsName": "Millennium Gloucester Hotel London Kensington",
+    "MapName": "Millennium Gloucester Hotel London Kensington Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "TARCOP01",
+    "CmsName": "Copthorne Tara Hotel London Kensington",
+    "MapName": "Copthorne Tara Hotel London Kensington Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "KNIMIL01",
+    "CmsName": "Millennium Hotel London Knightsbridge",
+    "MapName": "Millennium Hotel London Knightsbridge Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "CHHGML01",
+    "CmsName": "The Chelsea Harbour Hotel",
+    "MapName": "The Chelsea Harbour Hotel Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "BAIMIL01",
+    "CmsName": "Millennium Baileys Hotel London Kensington",
+    "MapName": "Millennium Bailey's Hotel London Kensington Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "CCFMIL01",
+    "CmsName": "Millennium & Copthorne Hotels at Chelsea Football Club",
+    "MapName": "Millennium & Copthorne Hotels At Chelsea Football Club Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "ABZCOP01",
+    "CmsName": "Copthorne Hotel Aberdeen",
+    "MapName": "Copthorne Hotel Aberdeen Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "BHXCOP01",
+    "CmsName": "Copthorne Hotel Birmingham",
+    "MapName": "Copthorne Hotel Birmingham Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "CDFCOP01",
+    "CmsName": "Copthorne Hotel Cardiff-Caerdydd",
+    "MapName": "Copthorne Hotel Cardiff-Caerdydd Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MRHCOP01",
+    "CmsName": "Copthorne Hotel Merry Hill-Dudley",
+    "MapName": "Copthorne Hotel Merry Hill-Dudley Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "LGWCOP01",
+    "CmsName": "Copthorne Hotel London Gatwick",
+    "MapName": "Copthorne Hotel London Gatwick Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "EPHCOP01",
+    "CmsName": "Copthorne Hotel Effingham Gatwick",
+    "MapName": "Copthorne Hotel Effingham Gatwick Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "GLAMIL01",
+    "CmsName": "Millennium Hotel Glasgow",
+    "MapName": "Millennium Hotel Glasgow Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "LPLHDN01",
+    "CmsName": "Hard Days Night Hotel Liverpool",
+    "MapName": "Hard Days Night Hotel Liverpool Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MANCOP01",
+    "CmsName": "Copthorne Hotel Manchester",
+    "MapName": "Copthorne Hotel Manchester Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "NCLCOP01",
+    "CmsName": "Copthorne Hotel Newcastle",
+    "MapName": "Copthorne Hotel Newcastle Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "PLYCOP01",
+    "CmsName": "Copthorne Hotel Plymouth",
+    "MapName": "Copthorne Hotel Plymouth Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "REAMIL01",
+    "CmsName": "Millennium Madejski Hotel Reading",
+    "MapName": "Millennium Madejski Hotel Reading Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SHECOP01",
+    "CmsName": "Copthorne Hotel Sheffield",
+    "MapName": "Copthorne Hotel Sheffield Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SLWCOP01",
+    "CmsName": "Copthorne Hotel Slough-Windsor",
+    "MapName": "Copthorne Hotel Slough-Windsor Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "BEIGML01",
+    "CmsName": "Grand Millennium Beijing",
+    "MapName": "Grand Millennium Beijing Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "",
+    "CmsName": "Millennium Residences Beijing Fortune Plaza",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "CTUMIL01",
+    "CmsName": "Millennium Hotel Chengdu",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "CTUMH",
+    "CmsName": "M Hotel Chengdu",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "FOCMIL01",
+    "CmsName": "Millennium Hotel Fuqing",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "HZUMIL01",
+    "CmsName": "Millennium Resort Hangzhou",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "",
+    "CmsName": "New World Millennium Hong Kong Hotel",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "QINCOP01",
+    "CmsName": "Copthorne Hotel Qingdao",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SHAMIL01",
+    "CmsName": "Grand Millennium Shanghai HongQiao",
+    "MapName": "Grand Millennium Shanghai HongQiao Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "WUXMIL01",
+    "CmsName": "Millennium Hotel Wuxi",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "XMNMIL01",
+    "CmsName": "Millennium Harbourview Xiamen",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "JKTMIL01",
+    "CmsName": "Millennium Hotel Sirih Jakarta",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "TYOMIL01",
+    "CmsName": "Millennium Mitsui Garden Hotel Tokyo",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "KULGML01",
+    "CmsName": "Grand Millennium Hotel Kuala Lumpur",
+    "MapName": "Grand Millennium Kuala Lumpur Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "CAMCOP01",
+    "CmsName": "Copthorne Hotel Cameron Highlands",
+    "MapName": "Copthorne Hotel Cameron Highlands Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "PENCOP01",
+    "CmsName": "Copthorne Orchid Hotel Penang",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MNLMIL01",
+    "CmsName": "The Heritage Hotel Manila",
+    "MapName": "The Heritage Hotel Manila Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SINGCP01",
+    "CmsName": "Grand Copthorne Waterfront",
+    "MapName": "Grand Copthorne Waterfront Hotel Singapore Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SINCOP01",
+    "CmsName": "Copthorne Kings Hotel",
+    "MapName": "Copthorne King's Hotel Singapore Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SINMIL01",
+    "CmsName": "Orchard Hotel Singapore",
+    "MapName": "Orchard Hotel Singapore Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SINMHT01",
+    "CmsName": "M Hotel Singapore",
+    "MapName": "M Hotel Singapore Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SINSTM01",
+    "CmsName": "Studio M Hotel",
+    "MapName": "Studio M Hotel Singapore Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "TAIMIL01",
+    "CmsName": "Millennium Vee Hotel Taichung",
+    "MapName": "Millennium Vee Hotel Taichung Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "PHUMIL01",
+    "CmsName": "Millennium Resort Patong Phuket",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "BRNCOP01",
+    "CmsName": "Copthorne Hotel Baranan",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "KURGML01",
+    "CmsName": "Grand Millennium Hotel Sulaimainiah",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "AMMMIL01",
+    "CmsName": "Grand Millennium Amman",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "ALJCOP01",
+    "CmsName": "Al Jahra Copthorne Hotel & Resort",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "",
+    "CmsName": "Millennium Hotel and Convention Centre Kuwait",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MUSMIL01",
+    "CmsName": "Millennium Resort Mussanah",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MCTAPT01",
+    "CmsName": "Millennium Executive Apartments Muscat",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "DOHMIL01",
+    "CmsName": "Millennium Hotel Doha",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "DOHNG01",
+    "CmsName": "Kingsgate Hotel Doha",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "DOHCOP01",
+    "CmsName": "Copthorne Hotel Doha",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MEDMIL01",
+    "CmsName": "Millennium Taiba Hotel",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MEDMIL02",
+    "CmsName": "Millennium Al Aqeeq Hotel",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "ABDGML01",
+    "CmsName": "Grand Millennium Al Wahda",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "ABDMIL01",
+    "CmsName": "Millennium Corniche Hotel Abu Dhabi",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "ABDKNG01",
+    "CmsName": "Kingsgate Hotel Abu Dhabi",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "DXBCOP01",
+    "CmsName": "Copthorne Hotel Dubai",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "DXBMIL03",
+    "CmsName": "Millennium Plaza Hotel Dubai",
+    "MapName": "Millennium Plaza Hotel Dubai Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "DXBMIL02",
+    "CmsName": "Millennium Airport Hotel Dubai",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "DUBGML01",
+    "CmsName": "Grand Millennium Dubai",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "FJRMIL01",
+    "CmsName": "Millennium Hotel Fujairah",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SHJCOP01",
+    "CmsName": "Copthorne Hotel Sharjah",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "ACTCOP01",
+    "CmsName": "Copthorne Hotel Auckland City",
+    "MapName": "Copthorne Hotel Auckland City Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "BOICOP01",
+    "CmsName": "Copthorne Hotel Bay of Islands",
+    "MapName": "Copthorne Hotel and Resort Bay of Islands Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "PAIKNG01",
+    "CmsName": "Kingsgate Hotel Autolodge Paihia",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "DUDKNG01",
+    "CmsName": "Kingsgate Hotel Dunedin",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "GMTKNG01",
+    "CmsName": "Kingsgate Hotel Greymouth",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "HAMKNG01",
+    "CmsName": "Kingsgate Hotel Hamilton",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "HOKCOP01",
+    "CmsName": "Copthorne Hotel and Resort Hokianga",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "NPLCOP01",
+    "CmsName": "Copthorne Hotel Grand Central New Plymouth",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "PNTCOP01",
+    "CmsName": "Copthorne Hotel Palmerston North",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MQTMIL01",
+    "CmsName": "Millennium Hotel Queenstown",
+    "MapName": "Millennium Hotel Queenstown Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "LKECOP01",
+    "CmsName": "Copthorne Hotel and Resort Lakefront Queenstown",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "LVWCOP01",
+    "CmsName": "Copthorne Hotel & Apartments Queenstown Lakeview",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MROMIL01",
+    "CmsName": "Millennium Hotel Rotorua",
+    "MapName": "Millennium Hotel Rotorua Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "ROTCOP01",
+    "CmsName": "Copthorne Hotel Rotorua",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "TAUMIL01",
+    "CmsName": "Millennium Hotel and Resort Manuels Taupo",
+    "MapName": "Millennium Hotel and Resort Manuels Taupo Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "TEAKNG01",
+    "CmsName": "Kingsgate Hotel Te Anau",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "WAICOP01",
+    "CmsName": "Copthorne Hotel & Resort Solway Park Wairarapa",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "WNGKNG01",
+    "CmsName": "Kingsgate Hotel The Avenue Wanganui",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "OBYCOP01",
+    "CmsName": "Copthorne Hotel Wellington Oriental Bay",
+    "MapName": "Copthorne Hotel Wellington Oriental Bay Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "WHAKNG01",
+    "CmsName": "Kingsgate Hotel Whangarei",
+    "MapName": null,
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "ANCMIL01",
+    "CmsName": "The Lakefront Anchorage",
+    "MapName": "Millennium Alaskan Hotel Anchorage Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "BOSMIL01",
+    "CmsName": "Millennium Bostonian Hotel",
+    "MapName": "Millennium Bostonian Hotel Boston Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "BOUMIL01",
+    "CmsName": "Millennium Harvest House Boulder",
+    "MapName": "Millennium Harvest House Boulder Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "BUFMIL01",
+    "CmsName": "Millennium Hotel Buffalo",
+    "MapName": "Millennium Hotel Buffalo Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "CHIMIL01",
+    "CmsName": "Millennium Knickerbocker Chicago",
+    "MapName": "Millennium Knickerbocker Hotel Chicago Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "CINMIL01",
+    "CmsName": "Millennium Hotel Cincinnati",
+    "MapName": "Millennium Hotel Cincinnati Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "DURMIL01",
+    "CmsName": "Millennium Hotel Durham",
+    "MapName": "Millennium Hotel Durham Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "LAXMIL01",
+    "CmsName": "Millennium Biltmore Hotel Los Angeles",
+    "MapName": "Millennium Biltmore Hotel Los Angeles Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "MINMIL01",
+    "CmsName": "Millennium Hotel Minneapolis",
+    "MapName": "Millennium Hotel Minneapolis Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "NASMIL01",
+    "CmsName": "Millennium Maxwell House Hotel",
+    "MapName": "Millennium Maxwell House Hotel Nashville Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "BWYMIL01",
+    "CmsName": "Millennium Broadway Hotel ",
+    "MapName": "Millennium Broadway Hotel New York Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "ONEMIL01",
+    "CmsName": "ONE UN New York",
+    "MapName": "ONE UN New York Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "PRMMIL01",
+    "CmsName": "The Premier Hotel New York",
+    "MapName": "The Premier Hotel New York Feed",
+    "Enable": true,
+    "Passed": true
+  },
+  {
+    "HotelCode": "SCOMIL01",
+    "CmsName": "The McCormick Scottsdale",
+    "MapName": "The McCormick Scottsdale Feed",
+    "Enable": true,
+    "Passed": true
+  }
+]

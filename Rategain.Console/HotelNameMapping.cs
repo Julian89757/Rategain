@@ -1,50 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
+using System.Web.UI.WebControls;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RateGain.Console.Models;
 using RateGain.Util;
 
-namespace RateGainData.Console
+namespace RateGain.Console
 {
     public class HotelNameMapping
     {
-        private static readonly List<SampleDataFileRow> CmsHotelNames = new List<SampleDataFileRow>();
-        private static List<string> RategainHotelNames = new List<string>();
+        /// <summary>
+        /// 匹配列表
+        /// </summary>
+        private static readonly List<MapEntry> CmsHotelNames = new List<MapEntry>();
 
-        private static List<Tuple<string, string, string>> MapResults = new List<Tuple<string, string, string>>();
-
-        public static ILuceneService luceneService = null;
+        public static ILuceneService luceneService = new LuceneService();
 
         static HotelNameMapping()
         {
-            try
+            // 每次都从本地文件加载匹配信息
+            var manager = (new RedisCacheCollection())["Db4"];
+            var db = manager.GetDataBase();
+            if (db != null)
             {
-                var cmsHotelNameBytes = Res.hotel;
-                using (var stream = new MemoryStream(cmsHotelNameBytes))
+                try
                 {
-                    using (var reader = new StreamReader(stream))
+                    var _path = Directory.GetCurrentDirectory() + @"\App_Data\MapResult.json";
+                    if (File.Exists(_path))
                     {
-                        var  i = 1;
-                        while (true)
+                        using (var reader = new StreamReader(_path))
                         {
-                            var line = reader.ReadLine();
-                            if (line == null)
-                                break;
-                            CmsHotelNames.Add(new SampleDataFileRow
-                            {
-                                LineNumber = i,
-                                LineText = line.Trim(',')
-                            });
-                            i += 1;
+                            var text = reader.ReadToEnd();
+                            CmsHotelNames = JsonConvert.DeserializeObject<List<MapEntry>>(text);
                         }
                     }
+                    else
+                    {
+                        throw new Exception("There is  no hotel Map information. ");
+                    }
                 }
-                RategainHotelNames = Res.Rategain_hotel_ID.Trim().Split(new char[] { '\n' }).ToList();
+                catch (Exception ex)
+                {
+                    LogHelper.Write("Parse hotel name json file error", LogHelper.LogMessageType.Error, ex);
+                    throw ex;
+                }
             }
-            catch (Exception ex)
-            {
-                LogHelper.Write("Parse hotel name json file error", LogHelper.LogMessageType.Error, ex);
-            }
+
+            LogHelper.Write("hotel name map completed", LogHelper.LogMessageType.Info);
         }
 
         /// <summary>
@@ -53,77 +59,70 @@ namespace RateGainData.Console
         /// <returns></returns>
         public static void InitMappinng()
         {
-            luceneService = new LuceneService();
-            luceneService.BuildIndex(CmsHotelNames);
-
-            foreach (var c in RategainHotelNames)
+            // 对数据源建立搜索索引
+            luceneService.BuildIndex(CmsHotelNames.Select(x => new SampleDataFileRow
             {
-                var temp = luceneService.Search(c);
-                if (temp != null)
-                {
-                    var hotelName = temp.LineText.Split(':')[0].Trim(' ').Trim('"');
-                    var hotelCode = temp.LineText.Split(':')[1].Trim(' ').Trim('"');
-                    var mapp = Tuple.Create(c, hotelName, hotelCode);
-                    MapResults.Add(mapp);
-                }
-            }
-            
-            LogHelper.Write("hotel name map completed",LogHelper.LogMessageType.Info);
-        }
+                LineText = x.CmsName
+            }).ToList());
 
-
-        // 目前人工收集的rateGain  hotelname 
-        public static Dictionary<string, string> MappDict = new Dictionary<string, string>
-        {
-            {"Millennium Boulder","BOUMIL01"},
-            {"Millennium Bostonian Hotel Bost","BOSMIL01"},
-            {"Copthorne Tara Hotel London Kensington Feed","TARCOP01"},   
-            {"Millennium Hotel London Mayfair","MAYMIL01"},       
-            {"Grand Millennium Al Wahda","ABDGML01"},
-            {"Grand Copthorne Waterfront Singapore","SINGCP01"},
-            
-            {"Millennium Hotel Queenstown Feed","MQTMIL01"},
-            {"Copthorne Hotel Cameron Highlands Feed","CAMCOP01"},
-            {"The Heritage Hotel Manila Feed","MNLMIL01"},
-            {"Copthorne King's Hotel Singapore Feed","SINCOP01"},
-
-            {"Grand Copthorne Waterfront Hotel Singapore Feed","SINGCP01"},
-            {"Grand Millennium Kuala Lumpur Feed","KULGML01"},
-            {"Orchard Hotel Singapore Feed","SINMIL01"},
-
-            {"Studio M Hotel Singapore Feed","SINMHT01"},
-            {"Grand Millennium Shanghai HongQiao Feed","SHAMIL01"},
-            {"Grand Millennium Beijing Feed","BEIGML01"},
-            {"Millennium Plaza Hotel Dubai Feed","DXBMIL03"}
-            
-        };
-
-        public string LuceneMap(string propertyName)
-        {
-            // 使用kwewin 给的文件匹配
-            var temp = MapResults.FirstOrDefault(x => x.Item1 == propertyName);
-            if (temp == null)
+            // 对新加入的rategain hotelName 做订阅处理
+            var subscriber = RedisCacheManager.Connection.GetSubscriber();
+            subscriber.Subscribe("rategain_hotels", (sender, arg) =>
             {
-                // 酒店名根本不在 kerwin 给的那个文件列表中， 再给一次机会
-                var mostPossible = luceneService.Search(propertyName);
+                LogHelper.Write(arg, LogHelper.LogMessageType.Debug);
+                var mostPossible = luceneService.Search(arg);
                 if (mostPossible != null)
                 {
-                    var hotelName = mostPossible.LineText.Split(':')[0].Trim(' ').Trim('"');
-                    var hotelCode = mostPossible.LineText.Split(':')[1].Trim(' ').Trim('"');
-                    MapResults.Add(new Tuple<string, string, string>(propertyName, hotelName, hotelCode));
+                    var temp = CmsHotelNames.FirstOrDefault(x => x.CmsName == mostPossible.LineText);
+                    temp.MapName = arg;
+                    temp.Passed = false;
 
-                    return hotelCode;
+                    var _path = Directory.GetCurrentDirectory() + @"\App_Data\MapResult.json";
+                    if (File.Exists(_path))
+                    {
+                        using (var writer = new StreamWriter(_path,false))
+                        {
+                            writer.Write(JsonConvert.SerializeObject(CmsHotelNames));
+                            writer.Flush();
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("There is  no hotel Map information. ");
+                    }
                 }
-                return propertyName;
+            });
+        }
+
+        /// <summary>
+        /// 根据匹配配置文件找到 对应的hotelcode
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        public string LuceneMap(string propertyName)
+        {
+            var manager = (new RedisCacheCollection())["Db4"];
+            var db = manager.GetDataBase();
+            if (db != null && !db.SetContains("rategain_hotels", propertyName))
+            {
+                db.SetAdd("rategain_hotels", propertyName);
+                db.Publish("rategain_hotels", propertyName);
             }
 
-            return temp.Item3;
+            var temp = CmsHotelNames.FirstOrDefault(x => x.MapName == propertyName);
+            if (temp == null)
+            {
+                return null;
+            }
+            else
+            {
+                return temp.Enable ? temp.HotelCode : null;
+            }
         }
 
         public static void DisposeIndexDirectory()
         {
             luceneService.DisposeIndexDirectory();
         }
-
     }
 }

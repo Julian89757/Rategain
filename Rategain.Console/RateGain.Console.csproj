@@ -7,8 +7,8 @@
     <ProjectGuid>{4B0C8D5C-5A78-41C8-9449-6BC59871DCD0}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RateGainData.Console</RootNamespace>
-    <AssemblyName>RateGainData.Console</AssemblyName>
+    <RootNamespace>RateGain.Console</RootNamespace>
+    <AssemblyName>RateGain.Console</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -85,11 +85,7 @@
     <Compile Include="Lucene\SampleDataFileReader.cs" />
     <Compile Include="Lucene\SampleDataFileRow.cs" />
     <Compile Include="Models\HandleResp.cs" />
-    <Compile Include="Res.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Res.resx</DependentUpon>
-    </Compile>
+    <Compile Include="Models\MapEntry.cs" />
     <Compile Include="Services\FileToRedis.cs" />
     <Compile Include="Services\FtpDownload.cs" />
     <Compile Include="HotelNameMapping.cs" />
@@ -101,13 +97,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="App_Data\MapResult.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Resource\hotel.json" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.1">
@@ -125,16 +123,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Res.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Res.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resource\Rategain-hotel-ID.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RateGain.Util\RateGain.Util.csproj">

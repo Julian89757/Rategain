@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 using CsvHelper;
 using Newtonsoft.Json;
 using RateGain.Util;
-using StackExchange.Redis;
 using System.Diagnostics;
+using RateGain.Console.Models;
+using StackExchange.Redis;
 
-namespace RateGainData.Console
+namespace RateGain.Console
 {
     public class FileToRedis
     {

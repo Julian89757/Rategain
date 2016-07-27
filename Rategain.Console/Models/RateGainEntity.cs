@@ -8,7 +8,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using Newtonsoft.Json;
 
-namespace RateGainData.Console
+namespace RateGain.Console.Models
 {
     /// <summary>
     /// 自定义实现 ICloneable接口的待复制对象

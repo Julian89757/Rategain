@@ -9,7 +9,7 @@ using RateGain.Util;
 
 // PostSharp use for AOP， Log4net is just for log feature.  PNI.EA.Logging combined with two.
 
-namespace RateGainData.Console
+namespace RateGain.Console
 {
     public class FtpDownload
     {
@@ -31,7 +31,7 @@ namespace RateGainData.Console
         #endregion
 
         // SFTP下载客户端
-        private readonly SFTPOperation _sftpClient = new SFTPOperation(FptHost, "22", FtpUserId, FtpPwd);
+        private readonly SftpOperation _sftpClient = new SftpOperation(FptHost, "22", FtpUserId, FtpPwd);
 
         public Action<string> AnyFileDownLoadedOperate { private get; set; }
 

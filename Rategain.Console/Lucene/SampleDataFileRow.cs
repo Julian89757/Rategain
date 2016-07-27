@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace RateGainData.Console
+namespace RateGain.Console
 {
     public class SampleDataFileRow
     {

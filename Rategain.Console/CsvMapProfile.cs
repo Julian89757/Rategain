@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CsvHelper.Configuration;
+using RateGain.Console.Models;
 
-namespace RateGainData.Console
+namespace RateGain.Console
 {
     public sealed class CsvMapProfile : CsvClassMap<RateGainEntity>
     {
@@ -40,19 +39,14 @@ namespace RateGainData.Console
 
         private static string HotelMap(string PROPERTY_NAME)
         {
-            //  优先人工匹配的hotel name
-            if (HotelNameMapping.MappDict.ContainsKey(PROPERTY_NAME))
-            {
-                return HotelNameMapping.MappDict[PROPERTY_NAME];
-            }
             //   使用Lunene 匹配
             return new HotelNameMapping().LuceneMap(PROPERTY_NAME);
         }
 
-        private static string RoomtypeMap(string PRODUCT)
+        private static string RoomtypeMap(string product)
         {
-            var temp = PRODUCT.Split(',').ToList().FindAll(x => x.IndexOf("RM", 0, StringComparison.InvariantCultureIgnoreCase) >= 0);
-            var roomtypes = temp.Select(x => x.Substring(x.IndexOf('-') + 1));
+            var temp = product.Split(',').ToList().FindAll(x => x.IndexOf("RM", 0, StringComparison.InvariantCultureIgnoreCase) >= 0);
+            var roomtypes = temp.Select(x => x.Substring(x.IndexOf('-') + 1)).ToList();
             if (roomtypes.Any())
             {
                 return roomtypes.Aggregate((x, y) => x + "," + y);

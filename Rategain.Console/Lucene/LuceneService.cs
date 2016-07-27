@@ -12,7 +12,7 @@ using Lucene.Net.Store;
 using RateGain.Util;
 using Version = Lucene.Net.Util.Version;
 
-namespace RateGainData.Console
+namespace RateGain.Console
 {
     public interface ILuceneService
     {
