@@ -23,33 +23,27 @@ namespace RateGain.Console
         static HotelNameMapping()
         {
             // 每次都从本地文件加载匹配信息
-            var manager = (new RedisCacheCollection())["Db4"];
-            var db = manager.GetDataBase();
-            if (db != null)
+            try
             {
-                try
+                var _path = Directory.GetCurrentDirectory() + @"\App_Data\MapResult.json";
+                if (File.Exists(_path))
                 {
-                    var _path = Directory.GetCurrentDirectory() + @"\App_Data\MapResult.json";
-                    if (File.Exists(_path))
+                    using (var reader = new StreamReader(_path))
                     {
-                        using (var reader = new StreamReader(_path))
-                        {
-                            var text = reader.ReadToEnd();
-                            CmsHotelNames = JsonConvert.DeserializeObject<List<MapEntry>>(text);
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("There is  no hotel Map information. ");
+                        var text = reader.ReadToEnd();
+                        CmsHotelNames = JsonConvert.DeserializeObject<List<MapEntry>>(text);
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    LogHelper.Write("Parse hotel name json file error", LogHelper.LogMessageType.Error, ex);
-                    throw ex;
+                    throw new Exception("There is  no hotel Map information. ");
                 }
             }
-
+            catch (Exception ex)
+            {
+                LogHelper.Write("Parse hotel name json file error", LogHelper.LogMessageType.Error, ex);
+                throw ex;
+            }
             LogHelper.Write("hotel name map completed", LogHelper.LogMessageType.Info);
         }
 
@@ -80,7 +74,7 @@ namespace RateGain.Console
                     var _path = Directory.GetCurrentDirectory() + @"\App_Data\MapResult.json";
                     if (File.Exists(_path))
                     {
-                        using (var writer = new StreamWriter(_path,false))
+                        using (var writer = new StreamWriter(_path, false))
                         {
                             writer.Write(JsonConvert.SerializeObject(CmsHotelNames));
                             writer.Flush();
