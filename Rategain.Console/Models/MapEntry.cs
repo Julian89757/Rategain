@@ -19,9 +19,11 @@ namespace RateGain.Console.Models
         public float Score { get; set; }
 
         public bool Enable { get; set; } = true;
+    }
 
-        public bool Passed { get; set; } = true;
-
-
+    public class RategainHotel : MapEntry
+    {
+        [JsonProperty(PropertyName = "file", Order = 0)]
+        public string FromFile { get; set; }
     }
 }

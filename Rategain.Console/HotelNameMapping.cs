@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RateGain.Console.Models;
 using RateGain.Util;
+using StackExchange.Redis;
 
 namespace RateGain.Console
 {
@@ -32,7 +33,17 @@ namespace RateGain.Console
                     {
                         var text = reader.ReadToEnd();
                         CmsHotelNames = JsonConvert.DeserializeObject<List<MapEntry>>(text);
+                        CmsHotelNames.RemoveAll(x => string.IsNullOrEmpty(x.HotelCode));
+#if DEBUG
+                        var temp = CmsHotelNames.Select(x => new KeyValuePair<string, string>(x.HotelCode, x.CmsName)).ToList();
+                        var hoteljson = JsonConvert.SerializeObject(temp);
+#endif         
                     }
+                    if (CmsHotelNames == null)
+                        throw new Exception("There is  no hotel Map information.");
+                    var db = (new RedisCacheCollection())["Db4"].GetDataBase();
+                    var values = CmsHotelNames.Where(x => !string.IsNullOrEmpty(x.MapName)).Select(x => x.MapName).ToArray();
+                    db.SetAdd("rategain_hotels", Array.ConvertAll(values, item => (RedisValue)item));
                 }
                 else
                 {
@@ -60,29 +71,34 @@ namespace RateGain.Console
             }).ToList());
 
             // 对新加入的rategain hotelName 做订阅处理
-            var subscriber = RedisCacheManager.Connection.GetSubscriber();
-            subscriber.Subscribe("rategain_hotels", (sender, arg) =>
+            var sub = RedisCacheManager.Connection.GetSubscriber();
+            sub.SubscribeAsync("rategain_hotels", (c, v) =>
             {
-                LogHelper.Write(arg, LogHelper.LogMessageType.Debug);
-                var mostPossible = luceneService.Search(arg);
+                // TODO 新加入的rategain hotel name 持久化到另外的文件
+                LogHelper.Write(v, LogHelper.LogMessageType.Debug);
+                var mostPossible = luceneService.Search(v);
                 if (mostPossible != null)
                 {
                     var temp = CmsHotelNames.FirstOrDefault(x => x.CmsName == mostPossible.LineText);
-                    temp.MapName = arg;
-                    temp.Passed = false;
-
-                    var _path = Directory.GetCurrentDirectory() + @"\App_Data\MapResult.json";
-                    if (File.Exists(_path))
+                    var rategain_Hotel = new RategainHotel
                     {
-                        using (var writer = new StreamWriter(_path, false))
+                        CmsName = temp.CmsName,
+                        FromFile = "",
+                        HotelCode = temp.HotelCode,
+                        MapName = v
+                    };
+                    var _path = Directory.GetCurrentDirectory() + @"\App_Data\rategain_hotels.txt";
+                    // use a Serializer to serialise the object to the writer [append]
+                    using (var sw = new StreamWriter(_path, true))
+                    {
+                        using (JsonTextWriter jw = new JsonTextWriter(sw))
                         {
-                            writer.Write(JsonConvert.SerializeObject(CmsHotelNames));
-                            writer.Flush();
+                            jw.Formatting = Formatting.Indented;
+                            jw.IndentChar = ' ';
+                            jw.Indentation = 2;
+                            JsonSerializer.Create().Serialize(jw, rategain_Hotel);
+                            LogHelper.Write("new rategain hotel added.", LogHelper.LogMessageType.Debug);
                         }
-                    }
-                    else
-                    {
-                        throw new Exception("There is  no hotel Map information. ");
                     }
                 }
             });
@@ -95,23 +111,23 @@ namespace RateGain.Console
         /// <returns></returns>
         public string LuceneMap(string propertyName)
         {
-            var manager = (new RedisCacheCollection())["Db4"];
-            var db = manager.GetDataBase();
-            if (db != null && !db.SetContains("rategain_hotels", propertyName))
+            var db = (new RedisCacheCollection())["Db4"].GetDataBase();
+            try
             {
-                db.SetAdd("rategain_hotels", propertyName);
-                db.Publish("rategain_hotels", propertyName);
+                if (db != null && !db.SetContains("rategain_hotels", propertyName))
+                {
+                    db.SetAdd("rategain_hotels", propertyName);
+                    db.Publish("rategain_hotels", propertyName);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Write(ex.Message, LogHelper.LogMessageType.Debug);
             }
 
             var temp = CmsHotelNames.FirstOrDefault(x => x.MapName == propertyName);
-            if (temp == null)
-            {
-                return null;
-            }
-            else
-            {
-                return temp.Enable ? temp.HotelCode : null;
-            }
+
+            return temp != null ? (temp.Enable ? temp.HotelCode : null) : null;
         }
 
         public static void DisposeIndexDirectory()
