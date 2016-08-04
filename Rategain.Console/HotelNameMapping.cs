@@ -41,7 +41,7 @@ namespace RateGain.Console
                     }
                     if (CmsHotelNames == null)
                         throw new Exception("There is  no hotel Map information.");
-                    var db = (new RedisCacheCollection())["Db4"].GetDataBase();
+                    var db = RedisManager.Dbs["Db4"].DataBase;
                     var values = CmsHotelNames.Where(x => !string.IsNullOrEmpty(x.MapName)).Select(x => x.MapName).ToArray();
                     db.SetAdd("rategain_hotels", Array.ConvertAll(values, item => (RedisValue)item));
                 }
@@ -55,7 +55,7 @@ namespace RateGain.Console
                 LogHelper.Write("Parse hotel name json file error", LogHelper.LogMessageType.Error, ex);
                 throw ex;
             }
-            LogHelper.Write("hotel name map completed", LogHelper.LogMessageType.Info);
+            LogHelper.Write("Hotel name map completed", LogHelper.LogMessageType.Info);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace RateGain.Console
             }).ToList());
 
             // 对新加入的rategain hotelName 做订阅处理
-            var sub = RedisCacheManager.Connection.GetSubscriber();
+            var sub = RedisManager.Connection.GetSubscriber();
             sub.SubscribeAsync("rategain_hotels", (c, v) =>
             {
                 // TODO 新加入的rategain hotel name 持久化到另外的文件
@@ -111,7 +111,7 @@ namespace RateGain.Console
         /// <returns></returns>
         public static string LuceneMap(string propertyName)
         {
-            var db = (new RedisCacheCollection())["Db4"].GetDataBase();
+            var db = RedisManager.Dbs["Db4"].DataBase;
             try
             {
                 if (db != null && !db.SetContains("rategain_hotels", propertyName))

@@ -9,35 +9,19 @@ using StackExchange.Redis;
 
 namespace RateGain.Util
 {
-    public class RedisCacheManager
+    public class RedisDatabase
     {
-        private static ConnectionMultiplexer _instance;
+        public ConnectionMultiplexer Connection { get; set; }
 
-        public static ConnectionMultiplexer Connection
-        {
-            get
-            {
-                return _instance ?? ConnectionMultiplexer.Connect(Opt);
-            }
-        }
-
-        private static readonly ConfigurationOptions Opt= ConfigurationOptions.Parse(ConfigurationManager.ConnectionStrings["redis"].ConnectionString);
-
+        public IDatabase DataBase { get; }
         // Redis数据库索引
         public int Index { get; private set; }
 
-        // 内部命名的Redis数据库名称
-        public string Name { get; private set; }
-
-        public RedisCacheManager(int dbIndex, string name)
+        public RedisDatabase(ConnectionMultiplexer connection, int dbIndex)
         {
             Index = dbIndex;
-            Name = name;
-        }
-
-        public  IDatabase GetDataBase()
-        {
-            return Connection.GetDatabase(Index);
+            Connection = connection;
+            DataBase = Connection.GetDatabase(Index);
         }
 
         public string Get(string key)
@@ -48,7 +32,7 @@ namespace RateGain.Util
             }
             try
             {
-                var db = Connection.GetDatabase(Index);
+                var db = DataBase;
                 var value = db.StringGet(key);
                 return value;
             }
@@ -63,7 +47,7 @@ namespace RateGain.Util
         {
             var list = new List<T>();
 
-            var db = Connection.GetDatabase(Index);
+            var db = DataBase;
             foreach (var key in keys)
             {
                 try
@@ -90,7 +74,7 @@ namespace RateGain.Util
             var str = item is string
                 ? item as string
                 : JsonConvert.SerializeObject(item);
-            Insert(key, str,TimeSpan.MaxValue);
+            Insert(key, str, TimeSpan.MaxValue);
         }
 
         public void Insert<T>(string key, T item, TimeSpan expire)
@@ -98,16 +82,12 @@ namespace RateGain.Util
 
             try
             {
-                using (var conn = ConnectionMultiplexer.Connect(Opt))
-                {
-                    var db = conn.GetDatabase(Index);
-                    var json = item is string ? item as string : JsonConvert.SerializeObject(item);
+                var db = DataBase;
+                var json = item is string ? item as string : JsonConvert.SerializeObject(item);
 
-                    if (db.StringSet(key, json, expire))
-                    {
-                        LogHelper.Write(key + " expire timespan " + expire, LogHelper.LogMessageType.Debug);
-                    }
-                    conn.Close();
+                if (db.StringSet(key, json, expire))
+                {
+                    LogHelper.Write(key + " expire timespan " + expire, LogHelper.LogMessageType.Debug);
                 }
             }
             catch (Exception)
@@ -128,20 +108,18 @@ namespace RateGain.Util
         {
             try
             {
-                using (var conn = ConnectionMultiplexer.Connect(Opt))
+                var db = DataBase;
+                var json = item is string ? item as string : JsonConvert.SerializeObject(item);
+                var timespan = TimeSpan.FromSeconds((expire - DateTime.Now).TotalSeconds);
+                if (timespan > TimeSpan.Zero)
                 {
-                    var db = conn.GetDatabase(Index);
-                    var json = item is string ? item as string : JsonConvert.SerializeObject(item);
-                    var timespan = TimeSpan.FromSeconds((expire - DateTime.Now).TotalSeconds);
-                    if (timespan > TimeSpan.Zero)
+                    if (db.StringSet(key, json, timespan))
                     {
-                        if (db.StringSet(key, json, timespan))
-                        {
-                            LogHelper.Write(key+ " expire timespan " +timespan, LogHelper.LogMessageType.Debug);
-                        }
+                        LogHelper.Write(key + " expire timespan " + timespan, LogHelper.LogMessageType.Debug);
                     }
-                    conn.Close();
                 }
+
+
             }
             catch (Exception)
             {
@@ -153,7 +131,7 @@ namespace RateGain.Util
         {
             try
             {
-                var db = Connection.GetDatabase(Index);
+                var db = DataBase;
                 db.KeyDelete(key);
             }
             catch (Exception ex)
@@ -169,12 +147,9 @@ namespace RateGain.Util
         /// <returns></returns>
         public List<RedisKey> GetKeys(string pattern = null)
         {
-            using (var conn = ConnectionMultiplexer.Connect(Opt))
-            {
-                var endPoint = conn.GetEndPoints()[0];
-                var server = conn.GetServer(endPoint);
-                return server.Keys(Index, pattern).ToList();
-            }
+            var endPoint = Connection.GetEndPoints()[0];
+            var server = Connection.GetServer(endPoint);
+            return server.Keys(Index, pattern).ToList();
         }
 
         public void Clear()

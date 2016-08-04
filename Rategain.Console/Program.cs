@@ -17,7 +17,6 @@ namespace RateGain.Console
         static void Main()
         {
             LogHelper.Init();
-          //  (new RedisCacheCollection())["Db4"].Clear();
             try
             {
                 HotelNameMapping.InitMappinng();

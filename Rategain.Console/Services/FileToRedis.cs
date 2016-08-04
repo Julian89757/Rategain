@@ -131,8 +131,8 @@ namespace RateGain.Console
             var timeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             var fileName = fullname.Substring(fullname.LastIndexOf('\\') + 1);
 
-            var manager = (new RedisCacheCollection())["Db4"];
-            var db = manager.GetDataBase();
+            var manager = RedisManager.Dbs["Db4"];
+            var db = manager.DataBase;
             // 一般情况下，一个文件内只有一个酒店
             var hotels = temp.Select(x => x.CrsHotelId).Distinct();
             foreach (var h in hotels)
@@ -157,8 +157,7 @@ namespace RateGain.Console
 
         private static void ImportRedisData(List<RateGainEntity> tempList)
         {
-            var manager = (new RedisCacheCollection())["Db4"];
-            var db = manager.GetDataBase();
+            var db = RedisManager.Dbs["Db4"].DataBase;
             foreach (var c in tempList)
             {
                 var json = db.StringGet(c.Id);
