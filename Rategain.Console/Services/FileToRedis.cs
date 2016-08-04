@@ -37,13 +37,16 @@ namespace RateGain.Console
                 // filenames.ForEach(x => GenerateRedisData(x));
 
                 // 并行运算
-                Parallel.ForEach(filenames, item =>
+                ParallelLoopResult res = Parallel.ForEach(filenames, item =>
                 {
                     GenerateRedisData(item);
                 });
+                if(res.IsCompleted)
+                {
+                    var msg = string.Format("Import redis take {0} ms to execute", _stopWatch.ElapsedMilliseconds);
+                    LogHelper.Write(msg, LogHelper.LogMessageType.Info);
+                }
             }
-            var msg = string.Format("Import redis take {0} ms to execute", _stopWatch.ElapsedMilliseconds);
-            LogHelper.Write(msg, LogHelper.LogMessageType.Info);
         }
 
         public static void  GenerateRedisData(string fullName)

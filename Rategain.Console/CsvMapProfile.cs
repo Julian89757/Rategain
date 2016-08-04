@@ -40,7 +40,7 @@ namespace RateGain.Console
         private static string HotelMap(string PROPERTY_NAME)
         {
             //   使用Lunene 匹配
-            return new HotelNameMapping().LuceneMap(PROPERTY_NAME);
+            return HotelNameMapping.LuceneMap(PROPERTY_NAME);
         }
 
         private static string RoomtypeMap(string product)

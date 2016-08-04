@@ -109,7 +109,7 @@ namespace RateGain.Console
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        public string LuceneMap(string propertyName)
+        public static string LuceneMap(string propertyName)
         {
             var db = (new RedisCacheCollection())["Db4"].GetDataBase();
             try
