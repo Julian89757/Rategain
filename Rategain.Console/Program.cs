@@ -21,7 +21,7 @@ namespace RateGain.Console
             {
                 HotelNameMapping.InitMappinng();
             }
-            catch (Exception ex)
+            catch
             {
                 LogHelper.Write("There is no map file information", LogHelper.LogMessageType.Error);
                 return;

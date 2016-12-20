@@ -75,12 +75,9 @@ namespace RateGain.Console
                 Task.WaitAll(tasks.Where(x => x != null).ToArray());
 
                 _sftpClient.Disconnect();
-                if (AnyFileDownLoadedOperate == null)
+                if (AnyFileDownLoadedOperate != null)
                 {
-                    if (AllFileDownLoadedOperate != null)
-                    {
-                        AllFileDownLoadedOperate();
-                    }
+                    AllFileDownLoadedOperate();
                 }
 
                 LogHelper.Write("SFTP async download completed", LogHelper.LogMessageType.Info);

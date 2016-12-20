@@ -41,6 +41,7 @@ namespace RateGain.Console
                 {
                     GenerateRedisData(item);
                 });
+                _stopWatch.Stop();
                 if(res.IsCompleted)
                 {
                     var msg = string.Format("Import redis take {0} ms to execute", _stopWatch.ElapsedMilliseconds);
