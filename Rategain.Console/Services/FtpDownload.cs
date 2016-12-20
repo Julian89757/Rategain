@@ -7,8 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using RateGain.Util;
 
-// PostSharp use for AOP， Log4net is just for log feature.  PNI.EA.Logging combined with two.
-
 namespace RateGain.Console
 {
     public class FtpDownload
@@ -49,16 +47,15 @@ namespace RateGain.Console
             var patternString = @"\w*_" + DatePartDir + ".csv" + "$";
             var dateList = _sftpClient.GetPatternFileList(RemotePath, patternString);
             Directory.CreateDirectory(DownloadRootDir + "/" + DatePartDir);
-            //  本地文件已经保存，可以每天执行多次任务，检查添加的新文件。
             var remainDLlist = dateList.ToArray().Where(x => !File.Exists(DownloadRootDir + DatePartDir + @"\" + x)).ToList();
 
             if (!remainDLlist.Any())
             {
-                LogHelper.Write(string.Format("This time {0} we do  not need download files", TimeStamp), LogHelper.LogMessageType.Info);
+                LogHelper.Write($"This time {TimeStamp} we do  not need download files", LogHelper.LogMessageType.Info);
                 return;
             }
 
-            LogHelper.Write(string.Format("This time {0} we need download {1} files", TimeStamp, remainDLlist.Count), LogHelper.LogMessageType.Info);
+            LogHelper.Write($"This time {TimeStamp} we need download {remainDLlist.Count} files", LogHelper.LogMessageType.Info);
 
             _sftpClient.Connect();
             var tasks = new List<Task>();

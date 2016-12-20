@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace RateGain.Console.Models
 {
     /// <summary>
-    /// 自定义实现 ICloneable接口的待复制对象
+    /// 自定义实现 ICloneable接口的待复制对象,同时自动收集数据错误,必须使用C#2.0属性写法
     /// </summary>
     public class RateGainEntity:ICloneable
     {
@@ -24,33 +24,109 @@ namespace RateGain.Console.Models
 
                 return strArray.Aggregate((x, y) => x + ":" + y);
             }
+            set{    }
         }
 
+        private string _CrsHotelId;
         [JsonIgnore]
-        public string CrsHotelId { get; set; }
+        public string CrsHotelId
+        {
+            get { return _CrsHotelId;  }
+            set
+            {
+                _CrsHotelId = value;
+                if( value == null)
+                {
+                    Errors.Add(new ErrorEntry {  Field = nameof(CrsHotelId) , Msg= $"CrsHotelId is null."  });
+                }
+            }
+        }
 
+        private string _Date;
         [JsonIgnore]
-        public string Date { get; set; }
+        public string Date
+        {
+            get { return _Date; }
+            set
+            {
+                _Date = value;
+                DateTime outDate;
+                if(!DateTime.TryParse(value,out outDate)  || outDate < DateTime.Now.Date)
+                {
+                    Errors.Add(new ErrorEntry {  Field= nameof(Date), Msg= $"Date is invalid." });
+                }
+            }
+        }
 
         [JsonIgnore]
         public int LengthOfStay { get; set; }
 
+        private string _Avaliablity;
         [JsonIgnore]
-        public string Availablity { get; set; }
+        public string Availablity
+        {
+            get { return _Avaliablity; }
+            set
+            {
+                _Avaliablity = value;
+                if (value != "O")
+                    Errors.Add(new ErrorEntry { Field = nameof(Availablity), Msg = $"Availablity is invalid." });
+            }
+        }
 
-        public string Channel { get; set; }
+        private string _Channel;
+        public string Channel
+        {
+            get { return _Channel; }
+            set
+            {
+                _Channel = value;
+                if (value == null)
+                    Errors.Add(new ErrorEntry { Field = nameof(Channel), Msg = $"Channel is null." });
+            }
+        }
 
-        public float Rate { get; set; }
+        private float _Rate;
+        public float Rate
+        {
+            get { return _Rate; }
+            set
+            {
+                _Rate = value;
+                if (value == 0)
+                    Errors.Add(new ErrorEntry { Field = nameof(Rate), Msg = $"{ nameof(Rate)} is invalid." });
+            }
+        }
 
         public string Currency { get; set; }
 
+        private string _Promotion;
         [JsonIgnore]
-        public string Promotion { get; set; }
+        public string Promotion
+        {
+            get { return _Promotion; }
+            set
+            {
+                _Promotion = value;
+                if (Promotion == null)
+                    Errors.Add(new ErrorEntry { Field = nameof(Promotion), Msg = $"{ nameof(Promotion)} is null." });
+            }
+        }
 
         [JsonIgnore]
         public string Restriction { get; set; }
 
-        public string RoomType { get; set; }
+        private string _RoomType;
+        public string RoomType
+        {
+            get { return _RoomType; }
+            set
+            {
+                _RoomType = value;
+                if (string.IsNullOrEmpty(value))
+                    Errors.Add(new ErrorEntry { Field = nameof(RoomType), Msg = $"RoomType is null or empty." });
+            }
+        }
 
         public bool Intax { get; set; }
 
@@ -59,7 +135,18 @@ namespace RateGain.Console.Models
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
+        }
+
+        // 单条记录中的所有错误字段
+        private List<ErrorEntry> Errors = new List<ErrorEntry> { };
+        public string StrError()
+        {
+            if(Errors!= null && Errors.Any() )
+            {
+                return JsonConvert.SerializeObject(new { record = $"line:{Footing.Item2}", detail = Errors });
+            }
+            return string.Empty;
         }
     }
 }

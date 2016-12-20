@@ -84,6 +84,7 @@
     <Compile Include="Lucene\LuceneService.cs" />
     <Compile Include="Lucene\SampleDataFileReader.cs" />
     <Compile Include="Lucene\SampleDataFileRow.cs" />
+    <Compile Include="Models\ErrorEntry.cs" />
     <Compile Include="Models\HandleResp.cs" />
     <Compile Include="Models\MapEntry.cs" />
     <Compile Include="Services\FileToRedis.cs" />
