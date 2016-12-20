@@ -64,17 +64,18 @@ namespace RateGain.Console
         /// <returns></returns>
         public static void InitMappinng()
         {
-            // 对数据源建立搜索索引
-            luceneService.BuildIndex(CmsHotelNames.Select(x => new SampleDataFileRow
+            var dataToIndex = CmsHotelNames.Select((x, index) => new SampleDataFileRow
             {
+                LineNumber = index,
                 LineText = x.CmsName
-            }).ToList());
+            });
+            luceneService.BuildIndex(dataToIndex);
 
-            // 对新加入的rategain hotelName 做订阅处理
+            // 先对新加入的rategain hotelName 做订阅处理
             var sub = RedisManager.Connection.GetSubscriber();
             sub.SubscribeAsync("rategain_hotels", (c, v) =>
             {
-                // TODO 新加入的rategain hotel name 持久化到另外的文件
+                //  新加入的rategain hotel name 持久化到另外的文件
                 LogHelper.Write(v, LogHelper.LogMessageType.Debug);
                 var mostPossible = luceneService.Search(v);
                 if (mostPossible != null)
@@ -116,6 +117,7 @@ namespace RateGain.Console
             {
                 if (db != null && !db.SetContains("rategain_hotels", propertyName))
                 {
+                    // 监控到有新的 hotelName加入，发布这个通知
                     db.SetAdd("rategain_hotels", propertyName);
                     db.Publish("rategain_hotels", propertyName);
                 }
