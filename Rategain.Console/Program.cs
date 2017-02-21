@@ -18,6 +18,9 @@ namespace RateGain.Console
         static void Main()
         {
             LogHelper.Init();
+            // 清楚缓存
+            RedisManager.Dbs["Db4"].Clear();
+
             try
             {
                 HotelNameMapping.InitMappinng();
@@ -28,12 +31,14 @@ namespace RateGain.Console
                 return;
             }
 
-            var ftpDownLoad = new FtpDownload()
-            {
-                AnyFileDownLoadedOperate = FileToRedis.GenerateRedisData,
-                AllFileDownLoadedOperate = FileToRedis.ToRedis
-            };
-            ftpDownLoad.DownLoadList();
+            //var ftpDownLoad = new FtpDownload()
+            //{
+            //    AnyFileDownLoadedOperate = FileToRedis.GenerateRedisData,
+            //    AllFileDownLoadedOperate = FileToRedis.ToRedis
+            //};
+            // ftpDownLoad.DownLoadList();
+
+            FileToRedis.ToRedis();
 
             HotelNameMapping.DisposeIndexDirectory();
         }
