@@ -10,13 +10,23 @@ namespace RateGain.Util
 {
     public class RedisManager
     {
-        private static ConnectionMultiplexer _instance;
-
+        private static ConnectionMultiplexer _instance = null;
+        private static object _syncObject = new object();
         public static ConnectionMultiplexer Connection
         {
             get
             {
-                return _instance ?? ConnectionMultiplexer.Connect(Opt);
+                if( null == _instance)
+                {
+                    lock(_syncObject)
+                    {
+                        if( null  == _instance)
+                        {
+                            _instance = ConnectionMultiplexer.Connect(Opt);
+                        }
+                    }
+                }
+                return _instance; 
             }
         }
         private static readonly ConfigurationOptions Opt = ConfigurationOptions.Parse(ConfigurationManager.ConnectionStrings["redis"].ConnectionString);
@@ -60,3 +70,12 @@ namespace RateGain.Util
         }
     }
 }
+
+
+/*
+ ConnectionMultiplexer 是核心对象，隐藏了分布式多点服务器的细节，
+ 由于这个对象做了很多，在调用者中被设计成共享的和可回收的对象。
+     不要每次调用的时候创建这个对象，使用这个对象是线程安全的。
+     
+     
+     */

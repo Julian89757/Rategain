@@ -34,19 +34,19 @@ namespace RateGain.Console
                 var filenames = dir.GetFiles().Select(x => x.FullName).ToList();
 
                 //  串行化
-                // filenames.ForEach(x => GenerateRedisData(x));
+                 filenames.ForEach(x => GenerateRedisData(x));
 
                 // 并行运算
-                ParallelLoopResult res = Parallel.ForEach(filenames, item =>
-                {
-                    GenerateRedisData(item);
-                });
+                //ParallelLoopResult res = Parallel.ForEach(filenames, item =>
+                //{
+                //    GenerateRedisData(item);
+                //});
                 _stopWatch.Stop();
-                if(res.IsCompleted)
-                {
-                    var msg = $"Import redis take {_stopWatch.ElapsedMilliseconds} ms to execute";
-                    LogHelper.Write(msg, LogHelper.LogMessageType.Info);
-                }
+                //if(res.IsCompleted)
+                //{
+                //    var msg = $"Import redis take {_stopWatch.ElapsedMilliseconds} ms to execute";
+                //    LogHelper.Write(msg, LogHelper.LogMessageType.Info);
+                //}
             }
         }
 
@@ -74,6 +74,9 @@ namespace RateGain.Console
                                 {
                                     continue;
                                 }
+                                
+                                Debug.Assert(csv.Row != 3288,"达到需要调试的行数");
+                                
                                 if (outDate < DateTime.Now.Date || record.Availablity != "O" || record.Rate == 0 ||
                                     record.Promotion == null || record.Restriction == "Y" ||
                                     record.CrsHotelId == null || record.Channel == null || string.IsNullOrEmpty(record.RoomType))

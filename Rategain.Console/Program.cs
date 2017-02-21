@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using CsvHelper;
 using RateGain.Util;
+using StackExchange.Redis;
 
 namespace RateGain.Console
 {
@@ -30,7 +31,7 @@ namespace RateGain.Console
             var ftpDownLoad = new FtpDownload()
             {
                 AnyFileDownLoadedOperate = FileToRedis.GenerateRedisData,
-                AllFileDownLoadedOperate =  FileToRedis.ToRedis
+                AllFileDownLoadedOperate = FileToRedis.ToRedis
             };
             ftpDownLoad.DownLoadList();
 
