@@ -133,11 +133,6 @@ namespace RateGain.Console.Models
         // 为记录添加注脚
         public Tuple<string,int> Footing { get; set; }
 
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-
         // 单条记录中的所有错误字段
         private List<ErrorEntry> Errors = new List<ErrorEntry> { };
         public string StrError()
@@ -147,6 +142,11 @@ namespace RateGain.Console.Models
                 return JsonConvert.SerializeObject(new { record = $"line:{Footing.Item2}", detail = Errors });
             }
             return string.Empty;
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
     }
 }
