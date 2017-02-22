@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumerableExtension.cs" />
     <Compile Include="LogHelper.cs" />
     <Compile Include="RandomHelper.cs" />
     <Compile Include="RedisManager.cs" />
