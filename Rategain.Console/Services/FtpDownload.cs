@@ -22,24 +22,27 @@ namespace RateGain.Console
         /// <summary>
         /// 待下载的日期文件夹
         /// </summary>
-        private readonly string DatePartDir = DateTime.Now.ToString("yyyy-MM-dd");
+        private static readonly string DatePartDir = DateTime.Now.ToString("yyyy-MM-dd");
 
-        private readonly string TimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        private static readonly string TimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
 
         #endregion
 
         // SFTP下载客户端
-        private readonly SftpOperation _sftpClient = new SftpOperation(FptHost, "22", FtpUserId, FtpPwd);
+        private static readonly SftpOperation _sftpClient = new SftpOperation(FptHost, "22", FtpUserId, FtpPwd);
 
-        public Action<string> AnyFileDownLoadedOperate { private get; set; }
+        /// <summary>
+        /// 级联任务
+        /// </summary>
+        public static Action<string> AnyFileDownLoadedOperate { private get; set; }
 
-        public Action AllFileDownLoadedOperate { private get; set; }
+        /// <summary>
+        /// 级联任务完成之后进行的操作
+        /// </summary>
+        public static Action AllFileDownLoadedOperate { private get; set; }
 
-        public FtpDownload()
-        {
-        }
 
-        public void DownLoadList()
+        public static void DownLoadList()
         {
             LogHelper.Write("SFTP start check files", LogHelper.LogMessageType.Info);
 
@@ -47,15 +50,15 @@ namespace RateGain.Console
             var patternString = @"\w*_" + DatePartDir + ".csv" + "$";
             var dateList = _sftpClient.GetPatternFileList(RemotePath, patternString);
             Directory.CreateDirectory(DownloadRootDir + "/" + DatePartDir);
-            var remainDLlist = dateList.ToArray().Where(x => !File.Exists(DownloadRootDir + DatePartDir + @"\" + x)).ToList();
+            var remainDLlist = dateList.ToList().Where(x => !File.Exists(DownloadRootDir + DatePartDir + @"\" + x));
 
             if (!remainDLlist.Any())
             {
-                LogHelper.Write($"This time {TimeStamp} we do  not need download files", LogHelper.LogMessageType.Info);
+                LogHelper.Write($"This time {TimeStamp} we do not need download files", LogHelper.LogMessageType.Info);
                 return;
             }
 
-            LogHelper.Write($"This time {TimeStamp} we need download {remainDLlist.Count} files", LogHelper.LogMessageType.Info);
+            LogHelper.Write($"This time {TimeStamp} we need download {remainDLlist.ToList().Count()} files", LogHelper.LogMessageType.Info);
 
             _sftpClient.Connect();
             var tasks = new List<Task>();
@@ -66,7 +69,7 @@ namespace RateGain.Console
                 tasks.Add(_sftpClient.GetAsync(remotePath, localPath, AnyFileDownLoadedOperate));
             }
 
-            //  等待级联子任务结束
+            //  等待级联任务结束
             try
             {
                 Task.WaitAll(tasks.Where(x => x != null).ToArray());

@@ -30,15 +30,11 @@ namespace RateGain.Console
                 LogHelper.Write("There is no map file information", LogHelper.LogMessageType.Error);
                 return;
             }
+            // 支持两种形态的异步下载和导入
+            FtpDownload.AnyFileDownLoadedOperate = FileToRedis.GenerateRedisData;
+            // FtpDownload.AllFileDownLoadedOperate = FileToRedis.ToRedis;
 
-            //var ftpDownLoad = new FtpDownload()
-            //{
-            //    AnyFileDownLoadedOperate = FileToRedis.GenerateRedisData,
-            //    AllFileDownLoadedOperate = FileToRedis.ToRedis
-            //};
-            // ftpDownLoad.DownLoadList();
-
-            FileToRedis.ToRedis();
+            FtpDownload.DownLoadList();
 
             HotelNameMapping.DisposeIndexDirectory();
         }

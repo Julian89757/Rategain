@@ -6,9 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using RateGain.Util;
 using Renci.SshNet;
+using System.Collections.Generic;
 
 namespace RateGain.Console
-{ 
+{
     public class SftpOperation
     {
         #region 字段或属性
@@ -19,12 +20,12 @@ namespace RateGain.Console
 
         #endregion
 
- 
+
         public SftpOperation(string ip, string port, string user, string pwd)
         {
             sftp = new SftpClient(ip, Int32.Parse(port), user, pwd);
         }
-     
+
         public bool Connect()
         {
             try
@@ -40,7 +41,7 @@ namespace RateGain.Console
                 throw new Exception(string.Format("连接SFTP失败，原因：{0}", ex.Message));
             }
         }
-  
+
         public void Disconnect()
         {
             try
@@ -56,7 +57,7 @@ namespace RateGain.Console
             }
         }
 
-        
+
         /// <summary>  
         /// SFTP上传文件  
         /// </summary>  
@@ -78,7 +79,7 @@ namespace RateGain.Console
                 throw new Exception(string.Format("SFTP文件上传失败，原因：{0}", ex.Message));
             }
         }
-        
+
 
         /// <summary>  
         /// SFTP获取文件  
@@ -100,7 +101,7 @@ namespace RateGain.Console
             }
         }
 
-        public  Task<string> GetAsync(string source, string destination)
+        public Task<string> GetAsync(string source, string destination)
         {
             // 将在线程池上运行的指定工作队列， 并返回该工作句柄
             return Task.Run(
@@ -116,18 +117,17 @@ namespace RateGain.Console
 
 
         // 这里是级联任务
-        public  Task<string> GetAsync(string remotePath, string localPath, Action<string> cbFunc)
+        public Task<string> GetAsync(string remotePath, string localPath, Action<string> cbFunc)
         {
-            
             // 这样是不是更合理一点
-            var task= Task.Factory.StartNew(() =>
-            {
-                using (var saveFile = File.OpenWrite(localPath))
-                {
-                    sftp.DownloadFile(remotePath, saveFile);
-                    return localPath;
-                }
-            });
+            var task = Task.Factory.StartNew(() =>
+             {
+                 using (var saveFile = File.OpenWrite(localPath))
+                 {
+                     sftp.DownloadFile(remotePath, saveFile);
+                     return localPath;
+                 }
+             });
 
             Task<string> computeTask = null;
             //  创建延续任务
@@ -137,7 +137,7 @@ namespace RateGain.Console
                 {
                     cbFunc(x.Result);
                     return x.Result;
-                },TaskContinuationOptions.NotOnFaulted);
+                }, TaskContinuationOptions.NotOnFaulted);
 
                 // 如果指定任务的延续任务选项没有得到满足，延续任务将不会被scheduled，而会被cancled，这将引起 TaskCanceledException异常：用于告知任务取消的异常
             }
@@ -198,28 +198,19 @@ namespace RateGain.Console
         /// <param name="remotePath">远程路径</param>
         /// <param name="patternString">正则表达式</param>
         /// <returns></returns>
-        public ArrayList GetPatternFileList(string remotePath, string patternString)
+        public IEnumerable<string> GetPatternFileList(string remotePath, string patternString)
         {
-            try
+            Connect();
+            var files = sftp.ListDirectory(remotePath);
+            foreach (var file in files)
             {
-                Connect();
-                var files = sftp.ListDirectory(remotePath);
-                Disconnect();
-                var objList = new ArrayList();
-                foreach (var file in files)
+                string name = file.Name;
+                if (name.IsCustomerRegex(new Regex(patternString)))
                 {
-                    string name = file.Name;
-                    if (name.IsCustomerRegex(new Regex(patternString)))
-                    {
-                        objList.Add(name);
-                    }
+                    yield return name;
                 }
-                return objList;
             }
-            catch (Exception ex)
-            {
-                throw new Exception(string.Format("SFTP文件列表获取指定文件失败，原因：{0}", ex.Message));
-            }
+            Disconnect();
         }
 
         /// <summary>  
