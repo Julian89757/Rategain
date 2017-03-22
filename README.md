@@ -9,10 +9,9 @@
       酒店名称使用 Lucene.net匹配 
 ## 技术点： 
       利用 PostSharp 做AOP编程：日志记录 ---现已经移除
-      Renci.SshNet 做SFTP 文件下载，其中Task异步编程模型将下载csv和导入redis 做成了级联任务。  
+      Renci.SshNet 做SFTP 文件下载，其中TPL模型将下载csv和导入redis 做成了级联任务。  
       因为下载的csv文件酒店名称经常与平台CMS的 hotelname 不一致，这在酒店比较多的情况下，    
-      人工匹配很费时费力，故采用Lucene.net 做搜索匹配。  
-      
+      人工匹配很费时费力，故采用Lucene.net 做搜索匹配,未在CMS hotel name 集合的新加入hotel 利用redis 发布/订阅特性做了处理。
 ## 总结：
       本项目自认为比较好的地方是 采用Task做了级联任务（将redis导入功能【委托】作为级联子任务），    
       postsharp：AOP织入Log，同时应用了Lucene.net做搜索匹配。
