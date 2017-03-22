@@ -9,6 +9,7 @@ using System.Threading;
 using CsvHelper;
 using RateGain.Util;
 using StackExchange.Redis;
+using System.Threading.Tasks;
 
 namespace RateGain.Console
 {
@@ -18,7 +19,7 @@ namespace RateGain.Console
         static void Main()
         {
             LogHelper.Init();
-            // 清楚缓存
+            // 清除缓存
             RedisManager.Dbs["Db4"].Clear();
 
             try
@@ -30,14 +31,12 @@ namespace RateGain.Console
                 LogHelper.Write("There is no map file information", LogHelper.LogMessageType.Error);
                 return;
             }
-            // 支持两种形态的异步下载和导入
             FtpDownload.AnyFileDownLoadedOperate = FileToRedis.GenerateRedisData;
-            // FtpDownload.AllFileDownLoadedOperate = FileToRedis.ToRedis;
-
-            FtpDownload.DownLoadList();
+            FtpDownload.GetDataAsync().Wait();
 
             HotelNameMapping.DisposeIndexDirectory();
         }
+
     }
 }
 

@@ -42,45 +42,53 @@ namespace RateGain.Console
         public static Action AllFileDownLoadedOperate { private get; set; }
 
 
-        public static void DownLoadList()
+        public static async Task<int> GetDataAsync()
         {
             LogHelper.Write("SFTP start check files", LogHelper.LogMessageType.Info);
 
             //  正则表达式匹配 \w*_2016-01-18.csv$
             var patternString = @"\w*_" + DatePartDir + ".csv" + "$";
-            var dateList = _sftpClient.GetPatternFileList(RemotePath, patternString);
+            var dateIEnumerable = _sftpClient.GetPatternFileList(RemotePath, patternString);
             Directory.CreateDirectory(DownloadRootDir + "/" + DatePartDir);
-            var remainDLlist = dateList.ToList().Where(x => !File.Exists(DownloadRootDir + DatePartDir + @"\" + x));
+            var downLoadlist = dateIEnumerable.Where(x => !File.Exists(DownloadRootDir + DatePartDir + @"\" + x)).ToList();
 
-            if (!remainDLlist.Any())
+            if (!downLoadlist.Any())
             {
                 LogHelper.Write($"This time {TimeStamp} we do not need download files", LogHelper.LogMessageType.Info);
-                return;
+                return 0;
             }
 
-            LogHelper.Write($"This time {TimeStamp} we need download {remainDLlist.ToList().Count()} files", LogHelper.LogMessageType.Info);
+            LogHelper.Write($"This time {TimeStamp} we need download {downLoadlist.ToList().Count()} files", LogHelper.LogMessageType.Info);
 
+            await GetFtpDataAsync(downLoadlist);
+
+            if (AnyFileDownLoadedOperate != null)
+            {
+                AllFileDownLoadedOperate();
+            }
+            LogHelper.Write("SFTP async download completed", LogHelper.LogMessageType.Info);
+            return downLoadlist.Count;
+        }
+
+        public static async Task GetFtpDataAsync(List<string> downLoadlist)
+        {
             _sftpClient.Connect();
-            var tasks = new List<Task>();
-            foreach (var fileName in remainDLlist)
+            var tasks = new List<Task<string>>();
+            foreach (var fileName in downLoadlist)
             {
                 var remotePath = RemotePath + fileName;
                 var localPath = DownloadRootDir + DatePartDir + @"\" + fileName;
-                tasks.Add(_sftpClient.GetAsync(remotePath, localPath, AnyFileDownLoadedOperate));
+                tasks.Add(_sftpClient.GetFtpDataAsync(remotePath, localPath, AnyFileDownLoadedOperate));
             }
 
-            //  等待级联任务结束
+            //  DoIndependentWork();
+
             try
             {
-                Task.WaitAll(tasks.Where(x => x != null).ToArray());
+                // 等待级联任务结束 Task.WaitAll(tasks.Where(x => x != null).ToArray());
+                await Task.WhenAll(tasks.Where(x => x != null));
 
                 _sftpClient.Disconnect();
-                if (AnyFileDownLoadedOperate != null)
-                {
-                    AllFileDownLoadedOperate();
-                }
-
-                LogHelper.Write("SFTP async download completed", LogHelper.LogMessageType.Info);
             }
             catch (AggregateException ex)
             {

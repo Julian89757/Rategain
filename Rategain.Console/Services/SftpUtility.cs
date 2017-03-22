@@ -117,7 +117,7 @@ namespace RateGain.Console
 
 
         // 这里是级联任务
-        public Task<string> GetAsync(string remotePath, string localPath, Action<string> cbFunc)
+        public Task<string> GetFtpDataAsync(string remotePath, string localPath, Action<string> cbFunc)
         {
             // 这样是不是更合理一点
             var task = Task.Factory.StartNew(() =>
