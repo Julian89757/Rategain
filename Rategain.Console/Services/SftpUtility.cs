@@ -16,7 +16,7 @@ namespace RateGain.Console
 
         private SftpClient sftp;
 
-        public bool Connected { get { return sftp.IsConnected; } }
+        public bool Connected => sftp.IsConnected;
 
         #endregion
 
